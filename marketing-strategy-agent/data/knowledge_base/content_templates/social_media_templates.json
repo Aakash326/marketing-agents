@@ -1,0 +1,166 @@
+{
+  "title": "Social Media Content Templates Library",
+  "version": "2025.1",
+  "platforms": [
+    {
+      "platform": "linkedin",
+      "templates": [
+        {
+          "type": "thought_leadership",
+          "template": "🧠 Insight: {insight}\n\nIn my experience working with {industry} companies, I've observed that {observation}.\n\nHere's what successful brands are doing differently:\n\n• {point_1}\n• {point_2} \n• {point_3}\n\nThe key takeaway? {key_takeaway}\n\nWhat's your experience been? Share your thoughts below! 👇\n\n#Industry #Leadership #BusinessStrategy",
+          "character_limit": 3000,
+          "best_posting_times": ["Tuesday 10-11am", "Wednesday 8-9am", "Thursday 9-10am"],
+          "engagement_strategies": ["Ask questions", "Use industry hashtags", "Tag relevant people"]
+        },
+        {
+          "type": "company_update",
+          "template": "Exciting news from {company_name}! 🎉\n\n{announcement}\n\nThis milestone represents {significance} and reflects our commitment to {value_proposition}.\n\nSpecial thanks to our incredible team who made this possible, and to our clients who continue to trust us with {service_area}.\n\nWhat's next? {future_plans}\n\n#CompanyNews #Growth #Teamwork",
+          "character_limit": 3000,
+          "best_posting_times": ["Tuesday 9-10am", "Wednesday 10-11am"],
+          "engagement_strategies": ["Employee advocacy", "Client testimonials", "Behind-the-scenes content"]
+        },
+        {
+          "type": "industry_analysis",
+          "template": "📊 Industry Spotlight: {industry_trend}\n\nRecent data shows {statistic}, which signals a significant shift in {market_area}.\n\nBreaking this down:\n\n→ What's driving this change: {driver_1}, {driver_2}\n→ Impact on businesses: {impact}\n→ Opportunities ahead: {opportunities}\n\nFor {target_audience}, this means {actionable_advice}.\n\nHow is your organization adapting to these changes?\n\n#MarketTrends #BusinessIntelligence #Strategy",
+          "character_limit": 3000,
+          "best_posting_times": ["Monday 8-9am", "Wednesday 2-3pm"],
+          "engagement_strategies": ["Data visualization", "Expert opinions", "Industry polls"]
+        }
+      ]
+    },
+    {
+      "platform": "twitter",
+      "templates": [
+        {
+          "type": "quick_tip",
+          "template": "💡 Quick {topic} tip:\n\n{tip_content}\n\nTry this today and see the difference!\n\n#{hashtag1} #{hashtag2} #{hashtag3}",
+          "character_limit": 280,
+          "best_posting_times": ["Monday 8-9am", "Wednesday 3-4pm", "Friday 5-6pm"],
+          "engagement_strategies": ["Use trending hashtags", "Include emoji", "Call to action"]
+        },
+        {
+          "type": "thread_starter",
+          "template": "🧵 Thread: {topic} (1/n)\n\n{opening_statement}\n\nLet me break this down for you...",
+          "character_limit": 280,
+          "best_posting_times": ["Tuesday 12-1pm", "Thursday 1-2pm"],
+          "engagement_strategies": ["Number tweets", "Hook in first tweet", "Summarize at end"]
+        },
+        {
+          "type": "engagement_post",
+          "template": "Question for my {audience}: \n\n{question}\n\nA) {option_a}\nB) {option_b}\nC) {option_c}\n\nDrop your answer below! ⬇️\n\n#{hashtag1} #{hashtag2}",
+          "character_limit": 280,
+          "best_posting_times": ["Wednesday 11am-12pm", "Friday 2-3pm"],
+          "engagement_strategies": ["Polls", "Multiple choice", "Reply to comments"]
+        }
+      ]
+    },
+    {
+      "platform": "instagram",
+      "templates": [
+        {
+          "type": "carousel_post",
+          "template": "Swipe to discover {topic} ➡️\n\n{intro_text}\n\nSlide 1: {slide_1_content}\nSlide 2: {slide_2_content}\nSlide 3: {slide_3_content}\n\nWhich tip will you try first? Comment below! 💬\n\n#{hashtag1} #{hashtag2} #{hashtag3} #{hashtag4} #{hashtag5}",
+          "character_limit": 2200,
+          "best_posting_times": ["Monday 6-7am", "Tuesday 5-6pm", "Friday 1-2pm"],
+          "engagement_strategies": ["Visual storytelling", "Swipe motivation", "Story highlights"]
+        },
+        {
+          "type": "behind_the_scenes",
+          "template": "Behind the scenes at {company_name} ✨\n\n{bts_content}\n\nThis is what {process/day/project} really looks like! \n\nWe believe in {company_value}, and this moment perfectly captures that spirit.\n\nWhat would you like to see more of? Let us know! 👇\n\n#{hashtag1} #{hashtag2} #{hashtag3}",
+          "character_limit": 2200,
+          "best_posting_times": ["Wednesday 8-9am", "Thursday 12-1pm"],
+          "engagement_strategies": ["Authentic content", "Employee stories", "Process videos"]
+        }
+      ]
+    },
+    {
+      "platform": "facebook",
+      "templates": [
+        {
+          "type": "community_post",
+          "template": "Hey {community_name} community! 👋\n\n{main_content}\n\nWe'd love to hear from you:\n• {question_1}\n• {question_2}\n\nShare your thoughts in the comments - we read every single one! And don't forget to tag a friend who would find this useful.\n\n#{hashtag1} #{hashtag2}",
+          "character_limit": 63206,
+          "best_posting_times": ["Tuesday 1-3pm", "Wednesday 1-3pm", "Thursday 1-3pm"],
+          "engagement_strategies": ["Community building", "User-generated content", "Group discussions"]
+        },
+        {
+          "type": "event_promotion",
+          "template": "🎯 Don't miss out: {event_name}\n\n📅 When: {date_time}\n📍 Where: {location}\n💰 Investment: {price}\n\n{event_description}\n\nWhat you'll learn:\n✅ {benefit_1}\n✅ {benefit_2}\n✅ {benefit_3}\n\nSpaces are limited! Secure your spot now: {registration_link}\n\n#{hashtag1} #{hashtag2} #{hashtag3}",
+          "character_limit": 63206,
+          "best_posting_times": ["Monday 1-3pm", "Tuesday 2-4pm"],
+          "engagement_strategies": ["Event RSVP", "Early bird offers", "Speaker highlights"]
+        }
+      ]
+    },
+    {
+      "platform": "youtube",
+      "templates": [
+        {
+          "type": "video_description",
+          "template": "In this video, we dive deep into {topic}.\n\n🎯 What you'll learn:\n• {learning_point_1}\n• {learning_point_2}\n• {learning_point_3}\n\n⏰ Timestamps:\n00:00 - Introduction\n{timestamp_1} - {section_1}\n{timestamp_2} - {section_2}\n{timestamp_3} - {section_3}\n\n📚 Resources mentioned:\n• {resource_1}\n• {resource_2}\n\n💬 Let me know in the comments: {engagement_question}\n\n🔔 Subscribe for more {content_type} content!\n\n#{hashtag1} #{hashtag2} #{hashtag3}",
+          "character_limit": 5000,
+          "best_posting_times": ["Tuesday 2-4pm", "Thursday 12-3pm", "Saturday 9-11am"],
+          "engagement_strategies": ["Detailed timestamps", "Resource links", "Community tab posts"]
+        }
+      ]
+    }
+  ],
+  "content_pillars": [
+    {
+      "pillar": "Educational",
+      "description": "Teaching and informing your audience",
+      "percentage": 40,
+      "content_types": ["How-to posts", "Tips and tricks", "Industry insights", "Tutorials"]
+    },
+    {
+      "pillar": "Inspirational",
+      "description": "Motivating and encouraging your audience",
+      "percentage": 30,
+      "content_types": ["Success stories", "Behind-the-scenes", "Team spotlights", "Vision posts"]
+    },
+    {
+      "pillar": "Promotional",
+      "description": "Showcasing products, services, or achievements",
+      "percentage": 20,
+      "content_types": ["Product features", "Case studies", "Testimonials", "Company news"]
+    },
+    {
+      "pillar": "Entertainment",
+      "description": "Engaging and delighting your audience",
+      "percentage": 10,
+      "content_types": ["Memes", "Polls", "Fun facts", "Interactive content"]
+    }
+  ],
+  "hashtag_strategies": {
+    "linkedin": {
+      "recommended_count": "3-5 hashtags",
+      "strategy": "Mix of industry-specific and broader business hashtags",
+      "examples": ["#MarketingStrategy", "#BusinessGrowth", "#Leadership", "#Innovation"]
+    },
+    "twitter": {
+      "recommended_count": "1-2 hashtags",
+      "strategy": "Use trending hashtags when relevant, create branded hashtags",
+      "examples": ["#MarketingTips", "#GrowthHacking", "#StartupLife"]
+    },
+    "instagram": {
+      "recommended_count": "20-30 hashtags",
+      "strategy": "Mix of popular, moderately popular, and niche hashtags",
+      "examples": ["#Marketing", "#SmallBusiness", "#Entrepreneur", "#DigitalMarketing"]
+    },
+    "facebook": {
+      "recommended_count": "1-2 hashtags",
+      "strategy": "Focus on community and location-based hashtags",
+      "examples": ["#LocalBusiness", "#Community", "#CustomerSuccess"]
+    }
+  },
+  "engagement_best_practices": [
+    "Respond to comments within 2-4 hours during business hours",
+    "Ask questions to encourage interaction",
+    "Use platform-specific features (polls, stories, live videos)",
+    "Cross-promote content across platforms with platform-specific adaptations",
+    "Monitor brand mentions and engage with user-generated content",
+    "Share behind-the-scenes content to humanize your brand",
+    "Collaborate with industry influencers and thought leaders",
+    "Use analytics to optimize posting times and content types"
+  ]
+}

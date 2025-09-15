@@ -1,0 +1,38 @@
+# Minimal requirements for Marketing Strategy Agent
+
+# Core Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# AI & ML
+langchain
+langchain-community 
+langchain-core
+langchain-openai
+langgraph
+openai
+
+# Database & Vector Store
+tidb-vector
+pymysql
+cryptography
+
+# Data Processing
+pandas
+numpy
+pydantic
+pydantic-settings
+
+# Web & HTTP
+httpx
+requests
+
+# Utilities
+python-dotenv
+typing-extensions
+tenacity
+
+# Logging
+structlog
+python-json-logger

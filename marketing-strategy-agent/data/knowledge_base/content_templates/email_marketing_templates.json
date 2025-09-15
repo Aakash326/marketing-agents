@@ -1,0 +1,254 @@
+{
+  "title": "Email Marketing Templates and Best Practices",
+  "version": "2025.1",
+  "campaign_types": [
+    {
+      "type": "welcome_series",
+      "description": "Onboarding sequence for new subscribers",
+      "sequence": [
+        {
+          "email_number": 1,
+          "send_timing": "Immediately after signup",
+          "subject_line": "Welcome to {brand_name}! Here's what happens next...",
+          "template": "Hi {first_name},\n\nWelcome to the {brand_name} community! 🎉\n\nI'm {sender_name}, and I'm thrilled you've joined us. You're now part of a community of {subscriber_count}+ {target_audience} who are {shared_goal}.\n\nHere's what you can expect from us:\n\n✅ {benefit_1}\n✅ {benefit_2} \n✅ {benefit_3}\n\nTo get you started, I've prepared something special: {lead_magnet}.\n\n[Download Now Button]\n\nQuestions? Just reply to this email - I read every message personally.\n\nCheers,\n{sender_name}\nP.S. {personal_note}",
+          "goals": ["Set expectations", "Deliver lead magnet", "Establish personal connection"],
+          "cta": "Download lead magnet"
+        },
+        {
+          "email_number": 2,
+          "send_timing": "2 days after email 1",
+          "subject_line": "Your first win is just {time_frame} away",
+          "template": "Hi {first_name},\n\nHow's your {relevant_goal} going?\n\nI wanted to share a quick win you can implement today that takes less than {time_estimate}:\n\n{quick_tip_title}\n\n{step_1}\n{step_2}\n{step_3}\n\nWhy this works: {explanation}\n\nMany of our community members see {expected_result} within {timeframe} of implementing this.\n\nGive it a try and let me know how it goes!\n\n{sender_name}\n\nP.S. Tomorrow I'll share {teaser_for_next_email}.",
+          "goals": ["Provide immediate value", "Encourage engagement", "Build anticipation"],
+          "cta": "Try the tip"
+        },
+        {
+          "email_number": 3,
+          "send_timing": "4 days after email 1",
+          "subject_line": "The #1 mistake I see {target_audience} make",
+          "template": "Hi {first_name},\n\nIn my {experience_years} years of {expertise_area}, I've noticed that {percentage}% of {target_audience} make the same critical mistake:\n\n{mistake_description}\n\nThis leads to {negative_consequences}.\n\nHere's how to avoid it:\n\n{solution_step_1}\n{solution_step_2}\n{solution_step_3}\n\nRemember: {key_insight}\n\nIf you're struggling with {related_challenge}, you might find our {relevant_resource} helpful:\n\n[Learn More Button]\n\nRooting for your success,\n{sender_name}",
+          "goals": ["Share expertise", "Address common pain points", "Introduce relevant offer"],
+          "cta": "Access resource"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "description": "Regular value-driven newsletter content",
+      "templates": [
+        {
+          "template_name": "Industry Insights Newsletter",
+          "subject_line": "{industry} insights: {key_trend} is changing everything",
+          "template": "Hi {first_name},\n\n📈 This week in {industry}:\n\n**The Big Story**\n{main_news_story}\n\nWhy this matters for your {business_type}: {implication}\n\n**Quick Hits**\n• {news_item_1}\n• {news_item_2}\n• {news_item_3}\n\n**Tool of the Week**\n{tool_name}: {tool_description}\nWhy we love it: {tool_benefit}\n[Try it here →]\n\n**Reader Spotlight**\n{customer_success_story}\n\n**What's Coming**\nNext week: {preview_next_week}\n\nStay ahead,\n{sender_name}",
+          "sections": ["Main story", "Quick hits", "Tool recommendation", "Success story", "Preview"],
+          "frequency": "Weekly"
+        },
+        {
+          "template_name": "Educational Newsletter",
+          "subject_line": "How to {achieve_goal} in {timeframe}",
+          "template": "Hi {first_name},\n\nToday's lesson: {lesson_title}\n\n**The Challenge**\n{problem_description}\n\n**The Solution**\n{solution_overview}\n\nHere's your step-by-step plan:\n\n1️⃣ {step_1}\n2️⃣ {step_2}\n3️⃣ {step_3}\n4️⃣ {step_4}\n\n**Pro Tip**: {advanced_tip}\n\n**Resource of the Week**\n{resource_title}: {resource_description}\n[Get it here →]\n\n**Your Turn**\n{call_to_action_description}\n\nReply and let me know how it goes!\n\n{sender_name}",
+          "sections": ["Problem identification", "Solution explanation", "Action steps", "Pro tip", "Resource"],
+          "frequency": "Bi-weekly"
+        }
+      ]
+    },
+    {
+      "type": "promotional",
+      "description": "Sales and promotional campaigns",
+      "templates": [
+        {
+          "template_name": "Soft Pitch Product Launch",
+          "subject_line": "Finally ready to share this with you...",
+          "template": "Hi {first_name},\n\nFor months, you've been asking about {customer_request}.\n\nI've been quietly working on something that I think will help: {product_name}.\n\n**What it is:**\n{product_description}\n\n**Why I created it:**\n{motivation_story}\n\n**What makes it different:**\n• {differentiator_1}\n• {differentiator_2}\n• {differentiator_3}\n\n**Early results:**\n{social_proof_statistic}\n\n{customer_testimonial}\n\nBecause you're part of my inner circle, you get first access and {special_offer}.\n\n[Learn More →]\n\nQuestions? Just reply - I'll personally answer every email.\n\n{sender_name}\n\nP.S. This offer is only available until {deadline} or until we hit {limit} early adopters.",
+          "goals": ["Soft introduction", "Build anticipation", "Provide social proof"],
+          "urgency_elements": ["Limited time", "Limited quantity", "Exclusive access"]
+        },
+        {
+          "template_name": "Cart Abandonment Recovery",
+          "subject_line": "You left something behind...",
+          "template": "Hi {first_name},\n\nI noticed you were checking out {product_name} but didn't complete your order.\n\nNo worries - life gets busy! I've saved your cart for you.\n\n**Your items:**\n{cart_contents}\n\n**Still on the fence?** Here's what other customers love about {product_name}:\n\n\"{testimonial_text}\" - {customer_name}\n\nHave questions? Here are the most common ones:\n\n❓ {faq_1}\n✅ {answer_1}\n\n❓ {faq_2}\n✅ {answer_2}\n\n[Complete Your Order →]\n\nOr reply with your questions - I'm here to help!\n\n{sender_name}\n\nP.S. This cart will expire in {expiration_time}, but I can always recreate it for you if needed.",
+          "goals": ["Recover abandoned cart", "Address objections", "Provide support"],
+          "personalization": ["Cart contents", "Browsing behavior", "Previous purchases"]
+        }
+      ]
+    },
+    {
+      "type": "re_engagement",
+      "description": "Win back inactive subscribers",
+      "templates": [
+        {
+          "template_name": "We Miss You Campaign",
+          "subject_line": "I miss hearing from you...",
+          "template": "Hi {first_name},\n\nI've been looking through my subscriber list, and I realized it's been a while since you've opened one of my emails.\n\nI'm wondering... did I do something wrong?\n\nMaybe:\n• My content isn't as helpful as it used to be?\n• I'm emailing too often (or not often enough)?\n• Your interests have changed?\n• You're just super busy right now?\n\nI'd love to know how I can serve you better.\n\n**If you want to stay connected:**\nReply and let me know what you'd like to see more of.\n\n**If you want to take a break:**\n[Pause emails for 3 months →]\n\n**If it's time to part ways:**\n[Unsubscribe here →] (no hard feelings!)\n\nWhatever you choose, I appreciate the time we've had together.\n\n{sender_name}\n\nP.S. If you stay, I'd love to send you {re_engagement_gift} as a thank you.",
+          "goals": ["Acknowledge inactivity", "Show personal care", "Provide options"],
+          "outcome_paths": ["Re-engage", "Pause", "Unsubscribe"]
+        }
+      ]
+    }
+  ],
+  "subject_line_formulas": [
+    {
+      "formula": "Number + Adjective + Keyword + Promise",
+      "example": "5 Simple Ways to Double Your Email Open Rates",
+      "use_case": "List-based content"
+    },
+    {
+      "formula": "How to + Desired Outcome + Time Frame",
+      "example": "How to Generate 100 Leads in 30 Days",
+      "use_case": "Educational content"
+    },
+    {
+      "formula": "Question + Benefit",
+      "example": "Struggling with Low Conversion Rates?",
+      "use_case": "Problem-solution content"
+    },
+    {
+      "formula": "Curiosity + Benefit",
+      "example": "The Secret to Higher Email Engagement (Revealed)",
+      "use_case": "High-value content"
+    },
+    {
+      "formula": "Urgency + Scarcity",
+      "example": "24 Hours Left: Early Bird Pricing Expires",
+      "use_case": "Promotional content"
+    },
+    {
+      "formula": "Personal + Specific",
+      "example": "Sarah, Your Custom Marketing Plan is Ready",
+      "use_case": "Personalized content"
+    }
+  ],
+  "segmentation_strategies": [
+    {
+      "segment": "Engagement Level",
+      "criteria": ["Highly engaged", "Moderately engaged", "Low engagement", "Inactive"],
+      "messaging_approach": "Tailor frequency and content depth based on engagement history"
+    },
+    {
+      "segment": "Customer Journey Stage",
+      "criteria": ["Awareness", "Consideration", "Decision", "Customer", "Advocate"],
+      "messaging_approach": "Stage-appropriate content and offers"
+    },
+    {
+      "segment": "Demographics",
+      "criteria": ["Age", "Location", "Industry", "Company size"],
+      "messaging_approach": "Relevant examples and use cases"
+    },
+    {
+      "segment": "Behavioral",
+      "criteria": ["Purchase history", "Website behavior", "Content preferences"],
+      "messaging_approach": "Personalized recommendations and content"
+    },
+    {
+      "segment": "Psychographic",
+      "criteria": ["Values", "Motivations", "Pain points", "Goals"],
+      "messaging_approach": "Values-aligned messaging and solutions"
+    }
+  ],
+  "optimization_best_practices": [
+    {
+      "element": "Subject Lines",
+      "best_practices": [
+        "Keep under 50 characters for mobile optimization",
+        "Test emotional vs. rational appeals",
+        "Avoid spam trigger words",
+        "Use personalization strategically",
+        "A/B test different formulas"
+      ]
+    },
+    {
+      "element": "Send Times",
+      "best_practices": [
+        "Test different days and times for your audience",
+        "Consider time zones for global audiences",
+        "B2B: Tuesday-Thursday, 10am-2pm typically best",
+        "B2C: Varies by industry, test weekends",
+        "Monitor engagement patterns over time"
+      ]
+    },
+    {
+      "element": "Content",
+      "best_practices": [
+        "Lead with value, not promotion",
+        "Use conversational tone",
+        "Include clear call-to-action",
+        "Optimize for mobile reading",
+        "Test content length and format"
+      ]
+    },
+    {
+      "element": "Design",
+      "best_practices": [
+        "Simple, clean layout",
+        "Consistent brand colors and fonts",
+        "Mobile-responsive design",
+        "Strategic use of images",
+        "Clear visual hierarchy"
+      ]
+    }
+  ],
+  "automation_workflows": [
+    {
+      "workflow": "Lead Nurturing",
+      "trigger": "Lead magnet download",
+      "sequence": [
+        "Welcome email with lead magnet delivery",
+        "Educational content related to lead magnet",
+        "Social proof and case studies",
+        "Soft product introduction",
+        "Direct product pitch with bonus"
+      ],
+      "duration": "2 weeks"
+    },
+    {
+      "workflow": "Customer Onboarding",
+      "trigger": "Product purchase",
+      "sequence": [
+        "Purchase confirmation and next steps",
+        "Getting started guide and resources",
+        "Best practices and tips for success",
+        "Advanced features introduction",
+        "Success stories and community invitation"
+      ],
+      "duration": "1 month"
+    },
+    {
+      "workflow": "Win-Back Campaign",
+      "trigger": "90 days of inactivity",
+      "sequence": [
+        "We miss you email with special offer",
+        "Survey to understand disengagement reasons",
+        "Curated best content from past 3 months",
+        "Final chance email with unsubscribe option"
+      ],
+      "duration": "2 weeks"
+    }
+  ],
+  "metrics_and_kpis": [
+    {
+      "metric": "Open Rate",
+      "benchmark": "20-25% average across industries",
+      "optimization_focus": "Subject lines, sender name, send timing"
+    },
+    {
+      "metric": "Click-Through Rate",
+      "benchmark": "2-5% average across industries",
+      "optimization_focus": "Content relevance, CTA placement, design"
+    },
+    {
+      "metric": "Conversion Rate",
+      "benchmark": "1-3% average across industries",
+      "optimization_focus": "Landing page alignment, offer quality, audience targeting"
+    },
+    {
+      "metric": "Unsubscribe Rate",
+      "benchmark": "Under 0.5% per email",
+      "optimization_focus": "Content relevance, frequency, segmentation"
+    },
+    {
+      "metric": "List Growth Rate",
+      "benchmark": "2-5% monthly growth",
+      "optimization_focus": "Lead magnets, signup forms, referral programs"
+    }
+  ]
+}

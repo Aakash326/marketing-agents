@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div x-data="marketingDashboard()" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-chart-line text-blue-600 mr-3"></i>
+                        Marketing Strategy Agent
+                    </h1>
+                    <p class="text-gray-600 mt-2">AI-powered marketing workflow automation system</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">
+                        <span x-text="new Date().toLocaleString()"></span>
+                    </div>
+                    <div :class="connectionStatus === 'connected' ? 'text-green-500' : 'text-red-500'">
+                        <i class="fas fa-circle text-xs"></i>
+                        <span class="ml-1 text-sm" x-text="connectionStatus"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Company Selection Panel -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-building text-blue-600 mr-2"></i>
+                        Company Selection
+                    </h2>
+
+                    <!-- Company Selection Tabs -->
+                    <div class="border-b border-gray-200 mb-4">
+                        <nav class="-mb-px flex space-x-8">
+                            <button 
+                                @click="activeTab = 'existing'"
+                                :class="activeTab === 'existing' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                                Existing Companies
+                            </button>
+                            <button 
+                                @click="activeTab = 'custom'"
+                                :class="activeTab === 'custom' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                                Add Custom
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Existing Companies Tab -->
+                    <div x-show="activeTab === 'existing'" class="space-y-4">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                x-model="companySearch"
+                                placeholder="Search companies..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        
+                        <div class="max-h-64 overflow-y-auto space-y-2">
+                            <template x-for="company in filteredCompanies" :key="company.name">
+                                <div 
+                                    @click="selectCompany(company)"
+                                    :class="selectedCompany?.name === company.name ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'"
+                                    class="p-3 border rounded-lg cursor-pointer transition-colors">
+                                    <div class="font-medium text-gray-900" x-text="company.name"></div>
+                                    <div class="text-sm text-gray-500" x-text="company.industry"></div>
+                                    <div class="text-xs text-gray-400 mt-1" x-text="company.size + ' • ' + company.location"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Custom Company Tab -->
+                    <div x-show="activeTab === 'custom'" class="space-y-4">
+                        <form @submit.prevent="addCustomCompany()" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
+                                <input 
+                                    type="text" 
+                                    x-model="customCompany.name"
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Industry *</label>
+                                <input 
+                                    type="text" 
+                                    x-model="customCompany.industry"
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                                    <select 
+                                        x-model="customCompany.size"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="Startup">Startup</option>
+                                        <option value="Small">Small</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                        <option value="Enterprise">Enterprise</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                    <input 
+                                        type="text" 
+                                        x-model="customCompany.location"
+                                        placeholder="Global"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                                <input 
+                                    type="url" 
+                                    x-model="customCompany.website"
+                                    placeholder="https://example.com"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea 
+                                    x-model="customCompany.description"
+                                    rows="3"
+                                    placeholder="Brief company description..."
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                            </div>
+                            <button 
+                                type="submit"
+                                :disabled="!customCompany.name || !customCompany.industry"
+                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Company
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Selected Company Display -->
+                    <div x-show="selectedCompany" class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="font-medium text-gray-900 mb-3">Selected Company</h3>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="font-medium text-blue-900" x-text="selectedCompany?.name"></div>
+                            <div class="text-sm text-blue-700" x-text="selectedCompany?.industry"></div>
+                            <div class="text-xs text-blue-600 mt-2" x-text="selectedCompany?.description"></div>
+                        </div>
+                    </div>
+
+                    <!-- Start Workflow Button -->
+                    <button 
+                        @click="startWorkflow()"
+                        :disabled="!selectedCompany || isWorkflowRunning"
+                        class="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                        <i :class="isWorkflowRunning ? 'fas fa-spinner fa-spin' : 'fas fa-play'" class="mr-2"></i>
+                        <span x-text="isWorkflowRunning ? 'Creating Workflow...' : 'Start Marketing Analysis'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workflow Status Panel -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-tasks text-green-600 mr-2"></i>
+                        Workflow Status
+                    </h2>
+
+                    <!-- No Active Workflow -->
+                    <div x-show="!currentWorkflow" class="text-center py-12">
+                        <i class="fas fa-rocket text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-600 mb-2">Ready to Start</h3>
+                        <p class="text-gray-500">Select a company and start a marketing analysis workflow</p>
+                    </div>
+
+                    <!-- Active Workflow -->
+                    <div x-show="currentWorkflow" class="space-y-6">
+                        <!-- Workflow Header -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-gray-900" x-text="currentWorkflow?.company"></h3>
+                                <p class="text-sm text-gray-500" x-text="'Workflow ID: ' + currentWorkflow?.workflow_id"></p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div :class="getStatusColor(currentWorkflow?.status)" class="px-3 py-1 rounded-full text-sm font-medium">
+                                    <span x-text="currentWorkflow?.status"></span>
+                                </div>
+                                <button 
+                                    @click="cancelWorkflow()"
+                                    x-show="currentWorkflow?.status === 'running'"
+                                    class="text-red-600 hover:text-red-700">
+                                    <i class="fas fa-stop"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span x-text="currentWorkflow?.current_activity || 'Processing...'"></span>
+                                <span x-text="(currentWorkflow?.progress_percentage || 0) + '%'"></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                    :style="`width: ${currentWorkflow?.progress_percentage || 0}%`"
+                                    class="bg-blue-600 h-2 rounded-full transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <!-- Agent Progress -->
+                        <div x-show="currentWorkflow?.agent_progress" class="space-y-3">
+                            <h4 class="font-medium text-gray-900">Agent Progress</h4>
+                            <template x-for="(agent, index) in agentList" :key="agent">
+                                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <div :class="getAgentStatusIcon(agent)" class="w-6 h-6 flex items-center justify-center">
+                                        <i :class="getAgentIcon(agent)" class="text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-sm" x-text="agent"></div>
+                                        <div class="text-xs text-gray-500" x-text="getAgentDescription(agent)"></div>
+                                    </div>
+                                    <div :class="getAgentStatusColor(agent)" class="px-2 py-1 rounded text-xs font-medium">
+                                        <span x-text="getAgentStatus(agent)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Workflow Results -->
+                        <div x-show="currentWorkflow?.status === 'completed' && currentWorkflow?.results" class="space-y-4">
+                            <h4 class="font-medium text-gray-900">Results Summary</h4>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <div class="text-sm text-green-800">
+                                    <div>✓ Brand Analysis Complete</div>
+                                    <div>✓ Market Research Complete</div>
+                                    <div>✓ Content Strategy Generated</div>
+                                    <div>✓ Marketing Strategy Synthesized</div>
+                                    <div>✓ Visual Assets Created</div>
+                                </div>
+                                
+                                <!-- Report Generation Section -->
+                                <div class="mt-4 pt-3 border-t border-green-200">
+                                    <div class="flex items-center space-x-3 mb-3">
+                                        <label class="text-sm font-medium text-green-800">Report Format:</label>
+                                        <select x-model="reportFormat" class="text-xs border border-green-300 rounded px-2 py-1 bg-white">
+                                            <option value="pdf">PDF</option>
+                                            <option value="html">HTML</option>
+                                            <option value="json">JSON</option>
+                                            <option value="markdown">Markdown</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="flex space-x-2">
+                                        <button 
+                                            @click="generateReport()"
+                                            :disabled="isGeneratingReport"
+                                            class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <i :class="isGeneratingReport ? 'fas fa-spinner fa-spin' : 'fas fa-file-alt'" class="mr-2"></i>
+                                            <span x-text="isGeneratingReport ? 'Generating...' : 'Generate Report'"></span>
+                                        </button>
+                                        <button 
+                                            @click="showReportsModal = true; loadReports()"
+                                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                            <i class="fas fa-folder mr-2"></i>
+                                            View Reports
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Workflows -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-history text-purple-600 mr-2"></i>
+                        Recent Workflows
+                    </h2>
+                    
+                    <div x-show="workflowHistory.length === 0" class="text-center py-8 text-gray-500">
+                        No previous workflows found
+                    </div>
+                    
+                    <div x-show="workflowHistory.length > 0" class="space-y-3">
+                        <template x-for="workflow in workflowHistory.slice(0, 5)" :key="workflow.workflow_id">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-sm" x-text="workflow.company_name"></div>
+                                    <div class="text-xs text-gray-500" x-text="new Date(workflow.created_at).toLocaleString()"></div>
+                                </div>
+                                <div :class="getStatusColor(workflow.status)" class="px-2 py-1 rounded text-xs font-medium">
+                                    <span x-text="workflow.status"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Modal -->
+        <div x-show="showReportsModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div @click.away="showReportsModal = false" class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-96 overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Generated Reports</h3>
+                    <button @click="showReportsModal = false" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="overflow-y-auto max-h-80">
+                    <div x-show="reports.length === 0" class="text-center py-8 text-gray-500">
+                        No reports generated yet
+                    </div>
+                    
+                    <div x-show="reports.length > 0" class="space-y-3">
+                        <template x-for="report in reports" :key="report.file_name">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-sm" x-text="report.file_name"></div>
+                                    <div class="text-xs text-gray-500">
+                                        <span x-text="formatFileSize(report.size_bytes)"></span> • 
+                                        <span x-text="new Date(report.created_at).toLocaleString()"></span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button 
+                                        @click="downloadReportFile(report.file_name)"
+                                        class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">
+                                        <i class="fas fa-download mr-1"></i>
+                                        Download
+                                    </button>
+                                    <button 
+                                        @click="deleteReportFile(report.file_name)"
+                                        class="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">
+                                        <i class="fas fa-trash mr-1"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function marketingDashboard() {
+            return {
+                // State
+                activeTab: 'existing',
+                companies: [],
+                selectedCompany: null,
+                companySearch: '',
+                connectionStatus: 'connecting',
+                isWorkflowRunning: false,
+                currentWorkflow: null,
+                workflowHistory: [],
+                websocket: null,
+                
+                // Report generation
+                reportFormat: 'pdf',
+                isGeneratingReport: false,
+                showReportsModal: false,
+                reports: [],
+                
+                // Custom company form
+                customCompany: {
+                    name: '',
+                    industry: '',
+                    size: 'Medium',
+                    location: 'Global',
+                    website: '',
+                    description: ''
+                },
+
+                // Agent list
+                agentList: [
+                    'BrandAnalyzer',
+                    'TrendResearcher', 
+                    'ContentCreator',
+                    'MarketingAgent',
+                    'GeminiVisualGenerator'
+                ],
+
+                // Initialization
+                async init() {
+                    await this.loadCompanies();
+                    await this.loadWorkflowHistory();
+                    this.connectWebSocket();
+                },
+
+                // Company Management
+                async loadCompanies() {
+                    try {
+                        const response = await fetch('/api/companies');
+                        const data = await response.json();
+                        this.companies = data.companies;
+                    } catch (error) {
+                        console.error('Failed to load companies:', error);
+                    }
+                },
+
+                async addCustomCompany() {
+                    try {
+                        const response = await fetch('/api/companies', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.customCompany)
+                        });
+                        
+                        if (response.ok) {
+                            await this.loadCompanies();
+                            this.selectCompany(this.customCompany);
+                            this.resetCustomCompany();
+                            this.activeTab = 'existing';
+                            alert('Company added successfully!');
+                        } else {
+                            const error = await response.json();
+                            alert('Failed to add company: ' + error.detail);
+                        }
+                    } catch (error) {
+                        console.error('Failed to add company:', error);
+                        alert('Failed to add company');
+                    }
+                },
+
+                resetCustomCompany() {
+                    this.customCompany = {
+                        name: '',
+                        industry: '',
+                        size: 'Medium',
+                        location: 'Global',
+                        website: '',
+                        description: ''
+                    };
+                },
+
+                selectCompany(company) {
+                    this.selectedCompany = company;
+                },
+
+                // Workflow Management
+                async startWorkflow() {
+                    if (!this.selectedCompany || this.isWorkflowRunning) return;
+
+                    this.isWorkflowRunning = true;
+                    
+                    try {
+                        const response = await fetch('/api/workflows', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                company_info: this.selectedCompany,
+                                execution_mode: 'hybrid'
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.currentWorkflow = {
+                                workflow_id: data.workflow_id,
+                                status: 'running',
+                                company: this.selectedCompany.name,
+                                progress_percentage: 0,
+                                current_activity: 'Starting workflow...'
+                            };
+                            
+                            // Connect to websocket for this workflow
+                            this.connectWorkflowWebSocket(data.workflow_id);
+                            
+                        } else {
+                            const error = await response.json();
+                            alert('Failed to start workflow: ' + error.detail);
+                        }
+                    } catch (error) {
+                        console.error('Failed to start workflow:', error);
+                        alert('Failed to start workflow');
+                    } finally {
+                        this.isWorkflowRunning = false;
+                    }
+                },
+
+                async cancelWorkflow() {
+                    if (!this.currentWorkflow) return;
+
+                    try {
+                        const response = await fetch(`/api/workflows/${this.currentWorkflow.workflow_id}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            this.currentWorkflow.status = 'cancelled';
+                        }
+                    } catch (error) {
+                        console.error('Failed to cancel workflow:', error);
+                    }
+                },
+
+                async loadWorkflowHistory() {
+                    try {
+                        const response = await fetch('/api/workflows');
+                        const data = await response.json();
+                        this.workflowHistory = data.workflow_history;
+                    } catch (error) {
+                        console.error('Failed to load workflow history:', error);
+                    }
+                },
+
+                // Report Management
+                async generateReport() {
+                    if (!this.currentWorkflow || this.isGeneratingReport) return;
+
+                    this.isGeneratingReport = true;
+                    
+                    try {
+                        const response = await fetch('/api/reports/generate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                workflow_id: this.currentWorkflow.workflow_id,
+                                format: this.reportFormat,
+                                sections: null // Include all sections
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            alert(`Report generated successfully! File: ${data.report.file_name}`);
+                            
+                            // Automatically download the report
+                            this.downloadReportFile(data.report.file_name);
+                        } else {
+                            const error = await response.json();
+                            alert('Failed to generate report: ' + error.detail);
+                        }
+                    } catch (error) {
+                        console.error('Failed to generate report:', error);
+                        alert('Failed to generate report');
+                    } finally {
+                        this.isGeneratingReport = false;
+                    }
+                },
+
+                async loadReports() {
+                    try {
+                        const response = await fetch('/api/reports');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.reports = data.reports;
+                        } else {
+                            console.error('Failed to load reports');
+                        }
+                    } catch (error) {
+                        console.error('Failed to load reports:', error);
+                    }
+                },
+
+                async downloadReportFile(fileName) {
+                    try {
+                        const response = await fetch(`/api/reports/download/${fileName}`);
+                        
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                        } else {
+                            alert('Failed to download report');
+                        }
+                    } catch (error) {
+                        console.error('Failed to download report:', error);
+                        alert('Failed to download report');
+                    }
+                },
+
+                async deleteReportFile(fileName) {
+                    if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
+
+                    try {
+                        const response = await fetch(`/api/reports/${fileName}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            // Reload reports list
+                            await this.loadReports();
+                            alert('Report deleted successfully');
+                        } else {
+                            const error = await response.json();
+                            alert('Failed to delete report: ' + error.detail);
+                        }
+                    } catch (error) {
+                        console.error('Failed to delete report:', error);
+                        alert('Failed to delete report');
+                    }
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+
+                // WebSocket Management
+                connectWebSocket() {
+                    this.connectionStatus = 'connecting';
+                    // General connection status websocket can be added here
+                    this.connectionStatus = 'connected';
+                },
+
+                connectWorkflowWebSocket(workflowId) {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${protocol}//${window.location.host}/ws/${workflowId}`;
+                    
+                    this.websocket = new WebSocket(wsUrl);
+                    
+                    this.websocket.onopen = () => {
+                        console.log('Connected to workflow websocket');
+                    };
+                    
+                    this.websocket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        this.handleWorkflowUpdate(data);
+                    };
+                    
+                    this.websocket.onclose = () => {
+                        console.log('Workflow websocket disconnected');
+                    };
+                    
+                    this.websocket.onerror = (error) => {
+                        console.error('Workflow websocket error:', error);
+                    };
+                },
+
+                handleWorkflowUpdate(data) {
+                    if (data.type === 'workflow_update' && this.currentWorkflow) {
+                        // Update current workflow status
+                        if (data.data.progress_percentage !== undefined) {
+                            this.currentWorkflow.progress_percentage = data.data.progress_percentage;
+                        }
+                        if (data.data.current_activity) {
+                            this.currentWorkflow.current_activity = data.data.current_activity;
+                        }
+                        if (data.data.status) {
+                            this.currentWorkflow.status = data.data.status;
+                        }
+                        if (data.data.result_summary) {
+                            this.currentWorkflow.results = data.data.result_summary;
+                        }
+                    }
+                },
+
+                // Utility Functions
+                get filteredCompanies() {
+                    if (!this.companySearch) return this.companies;
+                    return this.companies.filter(company => 
+                        company.name.toLowerCase().includes(this.companySearch.toLowerCase()) ||
+                        company.industry.toLowerCase().includes(this.companySearch.toLowerCase())
+                    );
+                },
+
+                getStatusColor(status) {
+                    const colors = {
+                        'completed': 'bg-green-100 text-green-800',
+                        'running': 'bg-blue-100 text-blue-800',
+                        'failed': 'bg-red-100 text-red-800',
+                        'cancelled': 'bg-gray-100 text-gray-800',
+                        'created': 'bg-yellow-100 text-yellow-800'
+                    };
+                    return colors[status] || 'bg-gray-100 text-gray-800';
+                },
+
+                getAgentIcon(agent) {
+                    const icons = {
+                        'BrandAnalyzer': 'fas fa-search',
+                        'TrendResearcher': 'fas fa-chart-line',
+                        'ContentCreator': 'fas fa-edit',
+                        'MarketingAgent': 'fas fa-bullhorn',
+                        'GeminiVisualGenerator': 'fas fa-image'
+                    };
+                    return icons[agent] || 'fas fa-cog';
+                },
+
+                getAgentDescription(agent) {
+                    const descriptions = {
+                        'BrandAnalyzer': 'Brand positioning and competitive analysis',
+                        'TrendResearcher': 'Market trends and industry insights',
+                        'ContentCreator': 'Content strategy and social media planning',
+                        'MarketingAgent': 'Comprehensive marketing strategy synthesis',
+                        'GeminiVisualGenerator': 'AI-powered visual content generation'
+                    };
+                    return descriptions[agent] || 'Processing...';
+                },
+
+                getAgentStatus(agent) {
+                    // This would be updated based on actual agent progress
+                    return 'pending';
+                },
+
+                getAgentStatusIcon(agent) {
+                    return 'bg-gray-100 text-gray-600 rounded-full';
+                },
+
+                getAgentStatusColor(agent) {
+                    return 'bg-gray-100 text-gray-600';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+/* Additional custom styles for the dashboard */
+
+.loading-spinner {
+    @apply inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+}
+
+.agent-progress-item {
+    @apply transition-all duration-300;
+}
+
+.agent-progress-item.completed {
+    @apply bg-green-50 border-green-200;
+}
+
+.agent-progress-item.running {
+    @apply bg-blue-50 border-blue-200 animate-pulse;
+}
+
+.agent-progress-item.failed {
+    @apply bg-red-50 border-red-200;
+}
+
+.workflow-card {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+}
+
+.company-card {
+    @apply transition-all duration-200 hover:shadow-md;
+}
+
+.progress-bar {
+    @apply transition-all duration-500 ease-out;
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Status indicators */
+.status-dot {
+    @apply w-2 h-2 rounded-full inline-block mr-2;
+}
+
+.status-dot.connected {
+    @apply bg-green-500 animate-pulse;
+}
+
+.status-dot.disconnected {
+    @apply bg-red-500;
+}
+
+.status-dot.connecting {
+    @apply bg-yellow-500 animate-ping;
+}
+
+/* Form validation styles */
+.form-input.error {
+    @apply border-red-300 ring-red-500 ring-1;
+}
+
+.form-input.success {
+    @apply border-green-300 ring-green-500 ring-1;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+    .mobile-stack {
+        @apply flex-col space-y-4 space-x-0;
+    }
+    
+    .mobile-full-width {
+        @apply w-full;
+    }
+}
