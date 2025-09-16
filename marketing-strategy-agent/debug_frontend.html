@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Quick Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">🧪 Quick Analysis Debug</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Quick Analysis</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Company Name</label>
+                    <input type="text" id="companyName" value="Debug Test Co." 
+                           class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Industry</label>
+                    <select id="industry" class="w-full p-2 border rounded">
+                        <option value="technology">Technology</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="finance">Finance</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Company Size</label>
+                    <select id="size" class="w-full p-2 border rounded">
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                
+                <button onclick="testQuickAnalysis()" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+                    🚀 Start Quick Analysis
+                </button>
+                
+                <button onclick="testCompleteAnalysis()" 
+                        class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                    🔥 Start Complete Analysis
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Debug Output</h2>
+            <div id="output" class="bg-gray-100 p-4 rounded text-sm font-mono h-96 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        const apiBase = 'http://localhost:8000';
+        let currentAnalysis = null;
+        let websocket = null;
+
+        function log(message) {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `[${timestamp}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        function getCompanyData() {
+            return {
+                name: document.getElementById('companyName').value,
+                industry: document.getElementById('industry').value,
+                size: document.getElementById('size').value,
+                location: "Global",
+                description: "A test company for debugging the marketing analyzer",
+                website: "https://example.com"
+            };
+        }
+
+        async function testQuickAnalysis() {
+            log("🚀 Starting Quick Analysis Test...");
+            
+            const payload = {
+                company: getCompanyData(),
+                analysis_type: "quick",
+                options: { mode: "sequential" }
+            };
+            
+            log("📤 Payload: " + JSON.stringify(payload, null, 2));
+            
+            try {
+                const response = await fetch(`${apiBase}/api/analysis/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                log(`📥 Response Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log("✅ Quick Analysis Started: " + JSON.stringify(data, null, 2));
+                    
+                    currentAnalysis = data;
+                    connectWebSocket(data.analysis_id);
+                } else {
+                    const errorText = await response.text();
+                    log("❌ Error Response: " + errorText);
+                }
+                
+            } catch (error) {
+                log("❌ Fetch Error: " + error.message);
+            }
+        }
+
+        async function testCompleteAnalysis() {
+            log("🔥 Starting Complete Analysis Test...");
+            
+            const payload = {
+                company: getCompanyData(),
+                analysis_type: "complete",
+                options: {}
+            };
+            
+            log("📤 Payload: " + JSON.stringify(payload, null, 2));
+            
+            try {
+                const response = await fetch(`${apiBase}/api/analysis/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                log(`📥 Response Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log("✅ Complete Analysis Started: " + JSON.stringify(data, null, 2));
+                    
+                    currentAnalysis = data;
+                    connectWebSocket(data.analysis_id);
+                } else {
+                    const errorText = await response.text();
+                    log("❌ Error Response: " + errorText);
+                }
+                
+            } catch (error) {
+                log("❌ Fetch Error: " + error.message);
+            }
+        }
+
+        function connectWebSocket(analysisId) {
+            if (websocket) {
+                websocket.close();
+            }
+            
+            const wsUrl = `ws://localhost:8000/ws/${analysisId}`;
+            log(`🔌 Connecting to WebSocket: ${wsUrl}`);
+            
+            websocket = new WebSocket(wsUrl);
+            
+            websocket.onopen = () => {
+                log("✅ WebSocket Connected");
+            };
+            
+            websocket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                log("📨 WebSocket Message: " + JSON.stringify(data, null, 2));
+            };
+            
+            websocket.onclose = () => {
+                log("❌ WebSocket Disconnected");
+            };
+            
+            websocket.onerror = (error) => {
+                log("❌ WebSocket Error: " + error.message);
+            };
+        }
+
+        // Test backend connection on load
+        window.onload = async () => {
+            log("🔄 Testing backend connection...");
+            try {
+                const response = await fetch(`${apiBase}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log("✅ Backend connected: " + JSON.stringify(data));
+                } else {
+                    log("❌ Backend not responding: " + response.status);
+                }
+            } catch (error) {
+                log("❌ Backend connection failed: " + error.message);
+            }
+        };
+    </script>
+</body>
+</html>

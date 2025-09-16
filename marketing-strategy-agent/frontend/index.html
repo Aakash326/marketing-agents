@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Marketing Strategy Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-slide-in-up {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        /* Gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="marketingAnalyzer()">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-rocket text-white text-2xl mr-3"></i>
+                    <h1 class="text-white text-xl font-bold">Marketing Strategy Analyzer</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-white text-sm">
+                        <i class="fas fa-circle" :class="isConnected ? 'text-green-300' : 'text-red-300'"></i>
+                        <span x-text="isConnected ? 'Connected' : 'Disconnected'"></span>
+                    </div>
+                    <button @click="showSystemInfo = !showSystemInfo" 
+                            class="text-white hover:text-gray-200">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- System Info Modal -->
+        <div x-show="showSystemInfo" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto custom-scrollbar">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">System Information</h3>
+                        <button @click="showSystemInfo = false" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Available AI Agents</h4>
+                            <ul class="space-y-1 text-gray-600">
+                                <li><i class="fas fa-search text-blue-500 mr-2"></i>BrandAnalyzer - Brand positioning & competitive analysis</li>
+                                <li><i class="fas fa-chart-line text-green-500 mr-2"></i>TrendResearcher - Market trends & insights</li>
+                                <li><i class="fas fa-edit text-purple-500 mr-2"></i>ContentCreator - Content strategy & social media</li>
+                                <li><i class="fas fa-bullseye text-red-500 mr-2"></i>MarketingAgent - Comprehensive marketing strategy</li>
+                                <li><i class="fas fa-palette text-pink-500 mr-2"></i>GeminiVisualGenerator - AI-powered visual content</li>
+                                <li><i class="fas fa-file-pdf text-orange-500 mr-2"></i>PDFGeneratorAgent - Professional report generation</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Features</h4>
+                            <ul class="space-y-1 text-gray-600">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Real-time progress tracking</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>PDF & Text report generation</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Company database management</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>WebSocket live updates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Section -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-2">🔧 Debug Information</h3>
+            <p x-text="debugInfo" class="text-yellow-700 mb-2"></p>
+            <div class="flex gap-2 flex-wrap">
+                <button @click="loadCompanies()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+                    🔄 Reload Companies
+                </button>
+                <button @click="companies = []; selectedCompany = null; debugInfo = 'Reset complete'; init()" 
+                        class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                    🔄 Full Reset
+                </button>
+                <button @click="console.log('🔍 Current state:', {companies: companies.length, selected: selectedCompany?.name || 'None', debugInfo, apiBase})" 
+                        class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600">
+                    📋 Log State
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel - Company & Analysis Setup -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                        <i class="fas fa-building text-indigo-600 mr-2"></i>
+                        Company Analysis Setup
+                    </h2>
+
+                    <!-- Company Selection -->
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-700 mb-3">Select Existing Company</h3>
+                        
+                        <!-- Debug Info -->
+                        <div class="mb-2 text-xs text-gray-500">
+                            <span x-text="`Loaded ${companies.length} companies`"></span>
+                            <button @click="loadCompanies()" class="ml-2 text-blue-500 hover:text-blue-700">
+                                <i class="fas fa-refresh"></i> Refresh
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                            <template x-for="company in companies" :key="company.id">
+                                <div @click="selectCompany(company)"
+                                     :class="selectedCompany?.id === company.id ? 'ring-2 ring-indigo-500 bg-indigo-50' : 'hover:bg-gray-50'"
+                                     class="p-3 border rounded-lg cursor-pointer transition-all">
+                                    <div class="font-medium text-gray-900" x-text="company.name"></div>
+                                    <div class="text-sm text-gray-600" x-text="company.industry + (company.employees ? ' • ' + company.employees : '')"></div>
+                                </div>
+                            </template>
+                            
+                            <!-- No companies fallback -->
+                            <div x-show="companies.length === 0" class="text-center py-4 text-gray-500">
+                                <i class="fas fa-building text-gray-300 text-2xl mb-2"></i>
+                                <p class="text-sm">No companies loaded yet</p>
+                                <button @click="loadCompanies()" class="text-blue-500 hover:text-blue-700 text-xs mt-1">
+                                    <i class="fas fa-refresh"></i> Try loading again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add New Company Form -->
+                    <div class="border-t pt-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-medium text-gray-700">Add New Company</h3>
+                            <button @click="showAddForm = !showAddForm" 
+                                    class="text-indigo-600 hover:text-indigo-800">
+                                <i :class="showAddForm ? 'fas fa-minus' : 'fas fa-plus'"></i>
+                            </button>
+                        </div>
+                        
+                        <div x-show="showAddForm" x-transition class="space-y-4">
+                            <input type="text" x-model="newCompany.name" placeholder="Company Name" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            
+                            <select x-model="newCompany.industry" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Select Industry</option>
+                                <option value="technology">Technology</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                                <option value="retail">Retail</option>
+                                <option value="education">Education</option>
+                                <option value="manufacturing">Manufacturing</option>
+                                <option value="automotive">Automotive</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="other">Other</option>
+                            </select>
+                            
+                            <select x-model="newCompany.size" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Select Size</option>
+                                <option value="startup">Startup</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large</option>
+                                <option value="enterprise">Enterprise</option>
+                            </select>
+                            
+                            <input type="text" x-model="newCompany.location" placeholder="Location (e.g., Global)" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            
+                            <textarea x-model="newCompany.description" placeholder="Company Description" rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                            
+                            <input type="url" x-model="newCompany.website" placeholder="Website (optional)" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            
+                            <button @click="addCompany()" 
+                                    :disabled="!newCompany.name || !newCompany.industry || !newCompany.size || !newCompany.description"
+                                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-plus mr-2"></i>Add Company
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Company Display -->
+                    <div x-show="selectedCompany" class="mt-6 pt-6 border-t">
+                        <h3 class="font-medium text-gray-900 mb-3">Selected Company</h3>
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                            <div class="font-medium text-blue-900" x-text="selectedCompany?.name"></div>
+                            <div class="text-sm text-blue-700" x-text="selectedCompany?.industry + (selectedCompany?.employees ? ' • ' + selectedCompany?.employees : '')"></div>
+                            <div class="text-xs text-blue-600 mt-2" x-text="selectedCompany?.description"></div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Action Button -->
+                    <div class="mt-6 space-y-4">
+                        <!-- Quick Analysis Button -->
+                        <button @click="startQuickAnalysis()" 
+                                :disabled="!selectedCompany || isAnalysisRunning"
+                                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-lg hover:opacity-90 focus:ring-4 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg transform transition-all hover:scale-105">
+                            <i :class="isAnalysisRunning && analysisType === 'quick' ? 'fas fa-spinner fa-spin' : 'fas fa-bolt'" class="mr-3"></i>
+                            <span x-text="isAnalysisRunning && analysisType === 'quick' ? 'Running Quick Analysis...' : 'Quick Analysis'"></span>
+                        </button>
+                        
+                        <div class="text-center text-sm text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>
+                            Estimated time: 2-4 minutes • Core insights only
+                        </div>
+                        
+                        <!-- Complete Analysis Button -->
+                        <button @click="startCompleteAnalysis()" 
+                                :disabled="!selectedCompany || isAnalysisRunning"
+                                class="w-full gradient-card text-white py-4 px-6 rounded-lg hover:opacity-90 focus:ring-4 focus:ring-pink-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg transform transition-all hover:scale-105">
+                            <i :class="isAnalysisRunning && analysisType === 'complete' ? 'fas fa-spinner fa-spin' : 'fas fa-rocket'" class="mr-3"></i>
+                            <span x-text="isAnalysisRunning && analysisType === 'complete' ? 'Running Complete Analysis...' : 'Complete Analysis'"></span>
+                        </button>
+                        
+                        <div class="text-center text-sm text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>
+                            Estimated time: 5-15 minutes • Full suite with PDF reports
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Analysis Status & Results -->
+            <div class="lg:col-span-2">
+                <!-- Analysis Status Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                        <i class="fas fa-chart-line text-green-600 mr-2"></i>
+                        Analysis Status
+                    </h2>
+
+                    <!-- No Analysis State -->
+                    <div x-show="!currentAnalysis" class="text-center py-16">
+                        <i class="fas fa-rocket text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-600 mb-2">Ready to Analyze</h3>
+                        <p class="text-gray-500">Select a company and start your comprehensive marketing analysis</p>
+                    </div>
+
+                    <!-- Active Analysis -->
+                    <div x-show="currentAnalysis" class="space-y-6 animate-slide-in-up">
+                        <!-- Analysis Header -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-gray-900" x-text="currentAnalysis?.company_name"></h3>
+                                <p class="text-sm text-gray-500">
+                                    ID: <span x-text="currentAnalysis?.analysis_id"></span>
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div :class="getStatusColor(currentAnalysis?.status)" 
+                                     class="px-3 py-1 rounded-full text-sm font-medium">
+                                    <span x-text="currentAnalysis?.status?.toUpperCase()"></span>
+                                </div>
+                                <button x-show="currentAnalysis?.status === 'running'" 
+                                        @click="cancelAnalysis()"
+                                        class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-stop-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div>
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span x-text="currentAnalysis?.current_step || 'Initializing'"></span>
+                                <span x-text="(currentAnalysis?.progress || 0) + '%'"></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
+                                     :style="'width: ' + (currentAnalysis?.progress || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Current Message -->
+                        <div x-show="currentAnalysis?.message" 
+                             class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-blue-800 text-sm" x-text="currentAnalysis?.message"></p>
+                        </div>
+
+                        <!-- Agent Progress -->
+                        <div x-show="agentProgress.length > 0">
+                            <h4 class="font-medium text-gray-900 mb-3">Agent Progress</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <template x-for="agent in agentProgress" :key="agent.name">
+                                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <i :class="agent.icon" class="text-lg"></i>
+                                        <div>
+                                            <div class="text-sm font-medium" x-text="agent.name"></div>
+                                            <div :class="agent.status === 'completed' ? 'text-green-600' : 
+                                                        agent.status === 'running' ? 'text-blue-600' : 
+                                                        'text-gray-500'" 
+                                                 class="text-xs" x-text="agent.status"></div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Results Summary -->
+                        <div x-show="currentAnalysis?.status === 'completed' && currentAnalysis?.results" 
+                             class="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <h4 class="font-medium text-green-900 mb-4">
+                                <i class="fas fa-check-circle mr-2"></i>Analysis Complete!
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-700" 
+                                         x-text="currentAnalysis?.results?.success_rate"></div>
+                                    <div class="text-sm text-green-600">Success Rate</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-700" 
+                                         x-text="currentAnalysis?.results?.execution_time + 's'"></div>
+                                    <div class="text-sm text-green-600">Execution Time</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Download Reports -->
+                            <div class="flex space-x-3">
+                                <button x-show="currentAnalysis?.results?.pdf_report" 
+                                        @click="downloadReport(currentAnalysis?.results?.pdf_report, 'pdf')"
+                                        class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-file-pdf mr-2"></i>Download PDF
+                                </button>
+                                <button x-show="currentAnalysis?.results?.text_report" 
+                                        @click="downloadReport(currentAnalysis?.results?.text_report, 'txt')"
+                                        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-file-alt mr-2"></i>Download Text
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Error Display -->
+                        <div x-show="currentAnalysis?.status === 'failed'" 
+                             class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h4 class="font-medium text-red-900 mb-2">
+                                <i class="fas fa-exclamation-circle mr-2"></i>Analysis Failed
+                            </h4>
+                            <p class="text-red-700 text-sm" x-text="currentAnalysis?.error"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Panel -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            <i class="fas fa-folder-open text-blue-600 mr-2"></i>
+                            Generated Reports
+                        </h2>
+                        <button @click="loadReports()" 
+                                class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+
+                    <div x-show="reports.length === 0" class="text-center py-8">
+                        <i class="fas fa-file-alt text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500">No reports generated yet</p>
+                    </div>
+
+                    <div x-show="reports.length > 0" class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+                        <template x-for="report in reports" :key="report.filename">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <i :class="report.type === '.pdf' ? 'fas fa-file-pdf text-red-500' : 'fas fa-file-alt text-blue-500'"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900" x-text="report.filename"></div>
+                                        <div class="text-sm text-gray-500">
+                                            <span x-text="formatFileSize(report.size)"></span> • 
+                                            <span x-text="formatDate(report.created)"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button @click="downloadReportFile(report.filename)" 
+                                            class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button @click="deleteReport(report.filename)" 
+                                            class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div x-show="toast.show" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-2"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform translate-y-2"
+         class="fixed bottom-4 right-4 z-50">
+        <div :class="toast.type === 'success' ? 'bg-green-500' : toast.type === 'error' ? 'bg-red-500' : 'bg-blue-500'"
+             class="text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+            <i :class="toast.type === 'success' ? 'fas fa-check-circle' : 
+                      toast.type === 'error' ? 'fas fa-exclamation-circle' : 
+                      'fas fa-info-circle'"></i>
+            <span x-text="toast.message"></span>
+            <button @click="toast.show = false" class="text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function marketingAnalyzer() {
+            return {
+                // State
+                companies: [],
+                selectedCompany: null,
+                debugInfo: '🔄 Initializing...',
+                newCompany: {
+                    name: '',
+                    industry: '',
+                    size: '',
+                    location: 'Global',
+                    description: '',
+                    website: ''
+                },
+                currentAnalysis: null,
+                reports: [],
+                showAddForm: false,
+                showSystemInfo: false,
+                isAnalysisRunning: false,
+                analysisType: null, // 'quick' or 'complete'
+                isConnected: false,
+                websocket: null,
+                toast: {
+                    show: false,
+                    type: 'info',
+                    message: ''
+                },
+                agentProgress: [
+                    { name: 'BrandAnalyzer', icon: 'fas fa-search text-blue-500', status: 'pending' },
+                    { name: 'TrendResearcher', icon: 'fas fa-chart-line text-green-500', status: 'pending' },
+                    { name: 'ContentCreator', icon: 'fas fa-edit text-purple-500', status: 'pending' },
+                    { name: 'MarketingAgent', icon: 'fas fa-bullseye text-red-500', status: 'pending' },
+                    { name: 'GeminiVisualGenerator', icon: 'fas fa-palette text-pink-500', status: 'pending' },
+                    { name: 'PDFGeneratorAgent', icon: 'fas fa-file-pdf text-orange-500', status: 'pending' }
+                ],
+
+                // API Configuration
+                apiBase: 'http://localhost:8000',
+
+                // Initialization
+                async init() {
+                    console.log('Initializing Marketing Analyzer...');
+                    this.showToast('info', 'Loading companies...');
+                    await this.loadCompanies();
+                    await this.loadReports();
+                    this.checkConnection();
+                    console.log('Initialization complete. Companies loaded:', this.companies.length);
+                },
+
+                // Company Management
+                async loadCompanies() {
+                    try {
+                        console.log('🔄 Starting loadCompanies...');
+                        console.log('Loading companies from:', `${this.apiBase}/api/companies`);
+                        this.debugInfo = '🔄 Loading companies...';
+                        
+                        const response = await fetch(`${this.apiBase}/api/companies`);
+                        console.log('Response status:', response.status, response.ok);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('Raw API response:', data);
+                        console.log('Response type:', typeof data, 'Is array:', Array.isArray(data));
+                        
+                        // Ensure we have an array
+                        let companies = Array.isArray(data) ? data : data.companies || [];
+                        console.log('Processed companies array:', companies.length, 'items');
+                        
+                        if (companies.length === 0) {
+                            console.warn('⚠️ No companies found in response');
+                            this.debugInfo = '⚠️ No companies found';
+                        } else {
+                            console.log('✅ Companies loaded successfully');
+                            console.log('First 3 companies:', companies.slice(0, 3).map(c => `${c.name} (${c.industry})`));
+                            this.debugInfo = `✅ ${companies.length} companies loaded. First: ${companies[0]?.name || 'None'}`;
+                        }
+                        
+                        // Force update
+                        this.companies = [];
+                        await this.$nextTick();
+                        this.companies = companies;
+                        await this.$nextTick();
+                        
+                        console.log('Final companies state:', this.companies.length);
+                        
+                    } catch (error) {
+                        console.error('❌ Error loading companies:', error);
+                        this.debugInfo = `❌ Error: ${error.message}`;
+                        this.showToast('error', 'Failed to load companies: ' + error.message);
+                        this.companies = [];
+                    }
+                },
+
+                selectCompany(company) {
+                    console.log('🏢 Selecting company:', company);
+                    this.selectedCompany = company;
+                    this.debugInfo = `Selected: ${company.name} (${company.industry})`;
+                    console.log('✅ Company selected:', this.selectedCompany);
+                },
+
+                async addCompany() {
+                    try {
+                        const response = await fetch(`${this.apiBase}/api/companies`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newCompany)
+                        });
+
+                        if (response.ok) {
+                            await this.loadCompanies();
+                            this.showToast('success', 'Company added successfully');
+                            this.resetNewCompanyForm();
+                            this.showAddForm = false;
+                        } else {
+                            const error = await response.json();
+                            this.showToast('error', error.detail);
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Failed to add company');
+                        console.error('Error adding company:', error);
+                    }
+                },
+
+                resetNewCompanyForm() {
+                    this.newCompany = {
+                        name: '',
+                        industry: '',
+                        size: '',
+                        location: 'Global',
+                        description: '',
+                        website: ''
+                    };
+                },
+
+                // Analysis Management
+                async startQuickAnalysis() {
+                    console.log('🚀 Starting quick analysis...');
+                    console.log('Selected company:', this.selectedCompany);
+                    console.log('Is analysis running:', this.isAnalysisRunning);
+                    
+                    if (!this.selectedCompany) {
+                        console.error('❌ No company selected!');
+                        this.showToast('error', 'Please select a company first');
+                        return;
+                    }
+                    
+                    if (this.isAnalysisRunning) {
+                        console.log('⚠️ Analysis already running');
+                        return;
+                    }
+
+                    console.log('✅ Starting quick analysis for:', this.selectedCompany.name);
+                    this.analysisType = 'quick';
+                    this.isAnalysisRunning = true;
+                    this.resetAgentProgress();
+
+                    try {
+                        const payload = {
+                            company: {
+                                name: this.selectedCompany.name,
+                                industry: this.selectedCompany.industry,
+                                size: this.selectedCompany.size,
+                                location: this.selectedCompany.location || 'Global',
+                                description: this.selectedCompany.description,
+                                website: this.selectedCompany.website || ''
+                            },
+                            analysis_type: 'quick',
+                            options: { mode: 'sequential' }
+                        };
+                        console.log('📤 Sending quick analysis payload:', payload);
+                        
+                        const response = await fetch(`${this.apiBase}/api/analysis/start`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        console.log('📥 Quick analysis response status:', response.status);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('✅ Quick analysis started successfully:', data);
+                            this.currentAnalysis = {
+                                analysis_id: data.analysis_id,
+                                company_name: this.selectedCompany.name,
+                                status: 'running',
+                                progress: 0,
+                                current_step: 'Initializing',
+                                message: 'Starting quick analysis (2-4 min)...'
+                            };
+
+                            this.connectWebSocket(data.analysis_id);
+                            this.showToast('success', 'Quick analysis started successfully');
+                        } else {
+                            const error = await response.json();
+                            this.showToast('error', error.detail);
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Failed to start quick analysis');
+                        console.error('Error starting quick analysis:', error);
+                    } finally {
+                        if (this.currentAnalysis?.status !== 'running') {
+                            this.isAnalysisRunning = false;
+                        }
+                    }
+                },
+
+                async startCompleteAnalysis() {
+                    console.log('🚀 Starting complete analysis...');
+                    console.log('Selected company:', this.selectedCompany);
+                    console.log('Is analysis running:', this.isAnalysisRunning);
+                    
+                    if (!this.selectedCompany) {
+                        console.error('❌ No company selected!');
+                        this.showToast('error', 'Please select a company first');
+                        return;
+                    }
+                    
+                    if (this.isAnalysisRunning) {
+                        console.log('⚠️ Analysis already running');
+                        return;
+                    }
+
+                    console.log('✅ Starting complete analysis for:', this.selectedCompany.name);
+                    this.analysisType = 'complete';
+                    this.isAnalysisRunning = true;
+                    this.resetAgentProgress();
+
+                    try {
+                        const payload = {
+                            company: {
+                                name: this.selectedCompany.name,
+                                industry: this.selectedCompany.industry,
+                                size: this.selectedCompany.size,
+                                location: this.selectedCompany.location || 'Global',
+                                description: this.selectedCompany.description,
+                                website: this.selectedCompany.website || ''
+                            },
+                            analysis_type: 'complete',
+                            options: {}
+                        };
+                        console.log('📤 Sending complete analysis payload:', payload);
+                        
+                        const response = await fetch(`${this.apiBase}/api/analysis/start`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        console.log('📥 Complete analysis response status:', response.status);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('✅ Complete analysis started successfully:', data);
+                            this.currentAnalysis = {
+                                analysis_id: data.analysis_id,
+                                company_name: this.selectedCompany.name,
+                                status: 'running',
+                                progress: 0,
+                                current_step: 'Initializing',
+                                message: 'Starting complete analysis (5-15 min)...'
+                            };
+
+                            this.connectWebSocket(data.analysis_id);
+                            this.showToast('success', 'Complete analysis started successfully');
+                        } else {
+                            const error = await response.json();
+                            this.showToast('error', error.detail);
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Failed to start complete analysis');
+                        console.error('Error starting complete analysis:', error);
+                    } finally {
+                        if (this.currentAnalysis?.status !== 'running') {
+                            this.isAnalysisRunning = false;
+                        }
+                    }
+                },
+
+                async cancelAnalysis() {
+                    if (!this.currentAnalysis) return;
+
+                    try {
+                        const response = await fetch(`${this.apiBase}/api/analysis/${this.currentAnalysis.analysis_id}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            this.showToast('info', 'Analysis cancelled');
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Failed to cancel analysis');
+                        console.error('Error cancelling analysis:', error);
+                    }
+                },
+
+                // WebSocket Management
+                connectWebSocket(analysisId) {
+                    const wsUrl = `ws://${window.location.hostname}:8000/ws/${analysisId}`;
+                    console.log('🔌 Connecting to WebSocket:', wsUrl);
+                    this.websocket = new WebSocket(wsUrl);
+                    
+                    this.websocket.onopen = () => {
+                        this.isConnected = true;
+                        console.log('WebSocket connected');
+                    };
+
+                    this.websocket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        this.handleWebSocketMessage(data);
+                    };
+
+                    this.websocket.onclose = () => {
+                        this.isConnected = false;
+                        console.log('WebSocket disconnected');
+                    };
+
+                    this.websocket.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.isConnected = false;
+                    };
+                },
+
+                handleWebSocketMessage(data) {
+                    switch (data.type) {
+                        case 'status_update':
+                        case 'progress_update':
+                            if (this.currentAnalysis) {
+                                this.currentAnalysis.status = data.status || this.currentAnalysis.status;
+                                this.currentAnalysis.progress = data.progress || this.currentAnalysis.progress;
+                                this.currentAnalysis.current_step = data.current_step || this.currentAnalysis.current_step;
+                                this.currentAnalysis.message = data.message || this.currentAnalysis.message;
+                                
+                                this.updateAgentProgress(data.current_step);
+                            }
+                            break;
+
+                        case 'analysis_completed':
+                            if (this.currentAnalysis) {
+                                this.currentAnalysis.status = 'completed';
+                                this.currentAnalysis.progress = 100;
+                                this.currentAnalysis.results = data.results;
+                                this.showToast('success', 'Analysis completed successfully!');
+                                this.loadReports();
+                            }
+                            break;
+
+                        case 'analysis_failed':
+                            if (this.currentAnalysis) {
+                                this.currentAnalysis.status = 'failed';
+                                this.currentAnalysis.error = data.error;
+                                this.showToast('error', 'Analysis failed');
+                            }
+                            break;
+                    }
+                },
+
+                updateAgentProgress(currentStep) {
+                    this.agentProgress.forEach(agent => {
+                        if (agent.name === currentStep) {
+                            agent.status = 'running';
+                        } else if (this.agentProgress.indexOf(agent) < this.agentProgress.findIndex(a => a.name === currentStep)) {
+                            agent.status = 'completed';
+                        }
+                    });
+                },
+
+                resetAgentProgress() {
+                    this.agentProgress.forEach(agent => {
+                        agent.status = 'pending';
+                    });
+                },
+
+                // Reports Management
+                async loadReports() {
+                    try {
+                        const response = await fetch(`${this.apiBase}/api/reports`);
+                        const data = await response.json();
+                        this.reports = data.reports || [];
+                    } catch (error) {
+                        console.error('Error loading reports:', error);
+                    }
+                },
+
+                async downloadReportFile(filename) {
+                    try {
+                        const response = await fetch(`${this.apiBase}/api/reports/download/${filename}`);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            this.showToast('success', 'Report downloaded');
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Failed to download report');
+                        console.error('Error downloading report:', error);
+                    }
+                },
+
+                async deleteReport(filename) {
+                    if (confirm('Are you sure you want to delete this report?')) {
+                        try {
+                            const response = await fetch(`${this.apiBase}/api/reports/${filename}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                await this.loadReports();
+                                this.showToast('success', 'Report deleted');
+                            }
+                        } catch (error) {
+                            this.showToast('error', 'Failed to delete report');
+                            console.error('Error deleting report:', error);
+                        }
+                    }
+                },
+
+                downloadReport(reportPath, type) {
+                    if (reportPath) {
+                        const filename = reportPath.split('/').pop();
+                        this.downloadReportFile(filename);
+                    }
+                },
+
+                // Utility Functions
+                checkConnection() {
+                    setInterval(async () => {
+                        try {
+                            const response = await fetch(`${this.apiBase}/api/health`);
+                            this.isConnected = response.ok;
+                        } catch (error) {
+                            this.isConnected = false;
+                        }
+                    }, 10000);
+                },
+
+                getStatusColor(status) {
+                    switch (status) {
+                        case 'completed': return 'bg-green-100 text-green-800';
+                        case 'running': return 'bg-blue-100 text-blue-800 animate-pulse-slow';
+                        case 'failed': return 'bg-red-100 text-red-800';
+                        case 'cancelled': return 'bg-gray-100 text-gray-800';
+                        default: return 'bg-yellow-100 text-yellow-800';
+                    }
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+
+                showToast(type, message) {
+                    this.toast = { show: true, type, message };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 5000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

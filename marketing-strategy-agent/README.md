@@ -174,7 +174,7 @@ marketing-strategy-agent/
 
 ### Python API Usage
 ```python
-from src.workflows.enhanced_marketing_workflow import execute_enhanced_marketing_workflow
+from workflows.enhanced_marketing_workflow import execute_enhanced_marketing_workflow
 from src.models.data_models import CompanyInfo
 from src.config.settings import load_config
 

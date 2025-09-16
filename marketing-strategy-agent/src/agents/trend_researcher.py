@@ -63,6 +63,21 @@ class TrendResearcher(BaseAgent):
             "market_opportunities": "Discovers emerging market opportunities from trends"
         }
     
+    def _extract_json_from_response(self, content: str) -> str:
+        """Extract JSON content from response, handling markdown code blocks"""
+        content = content.strip()
+        if content.startswith('```json'):
+            content = content[7:]
+            if content.endswith('```'):
+                content = content[:-3]
+            content = content.strip()
+        elif content.startswith('```'):
+            lines = content.split('\n')
+            if len(lines) > 1:
+                content = '\n'.join(lines[1:-1]) if lines[-1].strip() == '```' else '\n'.join(lines[1:])
+                content = content.strip()
+        return content
+    
     async def execute(self, company_info: CompanyInfo, **kwargs) -> AgentResponse:
         """
         Execute comprehensive trend research
@@ -212,7 +227,10 @@ class TrendResearcher(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            topics_data = json.loads(response.content)
+            
+            # Extract JSON from response content
+            content = self._extract_json_from_response(response.content)
+            topics_data = json.loads(content)
             
             trending_topics = []
             for topic_data in topics_data:
@@ -338,7 +356,10 @@ class TrendResearcher(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            hashtag_data = json.loads(response.content)
+            
+            # Extract JSON from response content
+            content = self._extract_json_from_response(response.content)
+            hashtag_data = json.loads(content)
             
             return HashtagStrategy(
                 trending_hashtags=hashtag_data.get("trending_hashtags", []),
@@ -420,7 +441,8 @@ class TrendResearcher(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            schedule_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            schedule_data = json.loads(content)
             
             return OptimalPostingSchedule(
                 platform=platform,
@@ -514,7 +536,8 @@ class TrendResearcher(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            activity_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            activity_data = json.loads(content)
             
             return CompetitorActivity(
                 competitor=competitor,
@@ -604,7 +627,8 @@ class TrendResearcher(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            patterns_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            patterns_data = json.loads(content)
             
             viral_patterns = []
             for pattern_data in patterns_data:

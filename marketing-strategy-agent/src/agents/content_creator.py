@@ -56,6 +56,21 @@ class ContentCreator(BaseAgent):
             "content_calendar": "Plans strategic content calendar with optimal timing"
         }
     
+    def _extract_json_from_response(self, content: str) -> str:
+        """Extract JSON content from response, handling markdown code blocks"""
+        content = content.strip()
+        if content.startswith('```json'):
+            content = content[7:]
+            if content.endswith('```'):
+                content = content[:-3]
+            content = content.strip()
+        elif content.startswith('```'):
+            lines = content.split('\n')
+            if len(lines) > 1:
+                content = '\n'.join(lines[1:-1]) if lines[-1].strip() == '```' else '\n'.join(lines[1:])
+                content = content.strip()
+        return content
+    
     async def execute(self, company_info: CompanyInfo, **kwargs) -> AgentResponse:
         """
         Execute comprehensive content creation
@@ -190,7 +205,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            pillars_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            pillars_data = json.loads(content)
             
             content_pillars = []
             for pillar_data in pillars_data:
@@ -299,7 +315,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            strategy_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            strategy_data = json.loads(content)
             
             # Convert content types to enum
             content_types = []
@@ -327,7 +344,7 @@ class ContentCreator(BaseAgent):
                 posting_frequency="3x/week",
                 optimal_times=["9am", "1pm", "6pm"],
                 engagement_strategy="Regular posting with authentic engagement",
-                budget_allocation_percentage=25.0 if platform in [Platform.INSTAGRAM, Platform.LINKEDIN] else None
+                budget_allocation_percentage=25.0 if platform in [Platform.INSTAGRAM, Platform.LINKEDIN] else 15.0
             )
     
     async def _create_overall_strategy_description(self, company_info: CompanyInfo,
@@ -468,7 +485,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            post_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            post_data = json.loads(content)
             
             return SocialMediaPost(
                 platform=platform,
@@ -544,7 +562,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            script_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            script_data = json.loads(content)
             
             return ReelScript(
                 hook=script_data["hook"],
@@ -618,7 +637,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            post_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            post_data = json.loads(content)
             
             return BlogPost(
                 title=post_data["title"],
@@ -678,7 +698,8 @@ class ContentCreator(BaseAgent):
         
         try:
             response = await self.llm.ainvoke(messages)
-            strategy_data = json.loads(response.content)
+            content = self._extract_json_from_response(response.content)
+            strategy_data = json.loads(content)
             
             return PromotionalStrategy(
                 influencer_collaboration=strategy_data["influencer_collaboration"],

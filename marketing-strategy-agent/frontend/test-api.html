@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <div id="result">Loading...</div>
+    <button onclick="testAPI()">Test API</button>
+    
+    <script>
+        async function testAPI() {
+            console.log('Testing API...');
+            try {
+                console.log('Fetching from: http://localhost:8000/api/companies');
+                const response = await fetch('http://localhost:8000/api/companies');
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const data = await response.json();
+                console.log('Data received:', data);
+                console.log('Number of companies:', data.length);
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Success!</h2>
+                    <p>Found ${data.length} companies</p>
+                    <p>First company: ${data[0]?.name || 'None'}</p>
+                    <p>Response status: ${response.status}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>Error!</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Auto-test on load
+        testAPI();
+    </script>
+</body>
+</html>

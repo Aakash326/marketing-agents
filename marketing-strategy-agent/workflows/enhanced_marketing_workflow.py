@@ -4,25 +4,23 @@ Main orchestrator for the multi-agent marketing strategy system
 """
 import asyncio
 import uuid
-from typing import Dict, Any, List, Optional, Callable
-from datetime import datetime
+from typing import Dict, Any, List, Callable
+from datetime import datetime, timezone
 import logging
-import os
 
-from ..agents.base_agent import AgentOrchestrator
-from ..agents.brand_analyzer import BrandAnalyzer
-from ..agents.trend_researcher import TrendResearcher
-from ..agents.content_creator import ContentCreator
-from ..agents.marketing_agent import MarketingAgent
-from ..agents.visual_generator import GeminiVisualGenerator
-from ..models.data_models import (
+from src.agents.base_agent import AgentOrchestrator
+from src.agents.brand_analyzer import BrandAnalyzer
+from src.agents.trend_researcher import TrendResearcher
+from src.agents.content_creator import ContentCreator
+from src.agents.marketing_agent import MarketingAgent
+from src.agents.visual_generator import GeminiVisualGenerator
+from src.models.data_models import (
     CompanyInfo,
     WorkflowStatus,
     WorkflowProgress,
     ComprehensiveMarketingPackage,
     AgentResponse
 )
-from ..database.simple_vector_store import VectorStore
 
 
 class EnhancedMarketingWorkflow:
@@ -119,7 +117,7 @@ class EnhancedMarketingWorkflow:
     async def _update_progress(self, progress: WorkflowProgress):
         """Update workflow progress and notify callbacks"""
         self.current_status.progress = progress
-        self.current_status.updated_at = datetime.utcnow()
+        self.current_status.updated_at = datetime.now(timezone.utc)
         
         # Notify all progress callbacks
         for callback in self.progress_callbacks:
@@ -169,10 +167,17 @@ class EnhancedMarketingWorkflow:
             # Update status with agent results
             self.current_status.agent_results = list(agent_results.values())
             
-            # Create comprehensive marketing package
-            marketing_package = await self._create_comprehensive_package(
-                company_info, agent_results
-            )
+            # Create comprehensive marketing package with fallback handling
+            try:
+                marketing_package = await self._create_comprehensive_package(
+                    company_info, agent_results
+                )
+            except Exception as e:
+                self.logger.error(f"Error creating comprehensive package: {e}")
+                # Create a minimal package with available results
+                marketing_package = await self._create_fallback_package(
+                    company_info, agent_results
+                )
             
             # Finalize workflow
             self.current_status.status = "completed"
@@ -213,6 +218,9 @@ class EnhancedMarketingWorkflow:
         """Execute agents in sequential order"""
         self.logger.info("Executing sequential workflow")
         
+        # Connect orchestrator's progress callbacks to workflow's callbacks
+        self.orchestrator.add_progress_callback(self._update_progress)
+        
         agent_configs = {
             "BrandAnalyzer": {},
             "TrendResearcher": {},
@@ -226,6 +234,9 @@ class EnhancedMarketingWorkflow:
     async def _execute_hybrid_workflow(self, company_info: CompanyInfo) -> Dict[str, AgentResponse]:
         """Execute agents using hybrid approach (recommended)"""
         self.logger.info("Executing hybrid workflow (optimal performance)")
+        
+        # Connect orchestrator's progress callbacks to workflow's callbacks
+        self.orchestrator.add_progress_callback(self._update_progress)
         
         agent_configs = {
             "BrandAnalyzer": {},
@@ -242,11 +253,20 @@ class EnhancedMarketingWorkflow:
         """Create comprehensive marketing package from agent results"""
         try:
             # Extract results from each agent
-            brand_analysis_result = agent_results.get("BrandAnalyzer", {}).get("result")
-            trend_research_result = agent_results.get("TrendResearcher", {}).get("result")
-            content_creation_result = agent_results.get("ContentCreator", {}).get("result")
-            marketing_strategy_result = agent_results.get("MarketingAgent", {}).get("result")
-            visual_content_result = agent_results.get("GeminiVisualGenerator", {}).get("result")
+            brand_analyzer = agent_results.get("BrandAnalyzer")
+            brand_analysis_result = brand_analyzer.result if brand_analyzer else None
+            
+            trend_researcher = agent_results.get("TrendResearcher")
+            trend_research_result = trend_researcher.result if trend_researcher else None
+            
+            content_creator = agent_results.get("ContentCreator")
+            content_creation_result = content_creator.result if content_creator else None
+            
+            marketing_agent = agent_results.get("MarketingAgent")
+            marketing_strategy_result = marketing_agent.result if marketing_agent else None
+            
+            visual_generator = agent_results.get("GeminiVisualGenerator")
+            visual_content_result = visual_generator.result if visual_generator else None
             
             # Create workflow metadata
             workflow_metadata = {
@@ -282,6 +302,72 @@ class EnhancedMarketingWorkflow:
         except Exception as e:
             self.logger.error(f"Error creating comprehensive package: {e}")
             raise
+    
+    async def _create_fallback_package(self, company_info: CompanyInfo,
+                                     agent_results: Dict[str, AgentResponse]) -> ComprehensiveMarketingPackage:
+        """Create a minimal marketing package when full package creation fails"""
+        try:
+            self.logger.info("Creating fallback marketing package with available results")
+            
+            # Extract what we can, use defaults for missing
+            brand_analysis_result = None
+            if "BrandAnalyzer" in agent_results and agent_results["BrandAnalyzer"].success:
+                brand_analysis_result = agent_results["BrandAnalyzer"].result
+            
+            content_creation_result = None  # Will be None, which should be handled by the model
+            marketing_strategy_result = None  # Will be None, which should be handled by the model
+            visual_content_result = None  # Will be None, which should be handled by the model
+            trend_research_result = None  # Will be None, which should be handled by the model
+            
+            # Try to get other successful results
+            for agent_name, result in agent_results.items():
+                if result.success and result.result:
+                    if agent_name == "ContentCreator":
+                        content_creation_result = result.result
+                    elif agent_name == "MarketingAgent":
+                        marketing_strategy_result = result.result
+                    elif agent_name == "GeminiVisualGenerator":
+                        visual_content_result = result.result
+                    elif agent_name == "TrendResearcher":
+                        trend_research_result = result.result
+            
+            # Create workflow metadata
+            workflow_metadata = {
+                "workflow_id": self.workflow_id,
+                "execution_mode": "hybrid",
+                "fallback_mode": True,
+                "successful_agents": [name for name, result in agent_results.items() if result.success],
+                "failed_agents": [name for name, result in agent_results.items() if not result.success],
+                "total_agents": len(agent_results)
+            }
+            
+            # Create package with optional fields as None if not available
+            package = ComprehensiveMarketingPackage(
+                company_info=company_info,
+                brand_analysis=brand_analysis_result,
+                content_creation=content_creation_result,
+                trend_research=trend_research_result,
+                marketing_strategy=marketing_strategy_result,
+                visual_content=visual_content_result,
+                workflow_metadata=workflow_metadata
+            )
+            
+            self.logger.info("Fallback marketing package created successfully")
+            return package
+            
+        except Exception as e:
+            self.logger.error(f"Error creating fallback package: {e}")
+            # Last resort: create package with minimal data
+            package = ComprehensiveMarketingPackage(
+                company_info=company_info,
+                brand_analysis={"error": "Package creation failed", "fallback": True},
+                content_creation=None,
+                trend_research=None,
+                marketing_strategy=None,
+                visual_content=None,
+                workflow_metadata={"error": str(e), "fallback_mode": True}
+            )
+            return package
     
     def _get_workflow_configuration(self) -> Dict[str, Any]:
         """Get workflow configuration summary"""
@@ -333,7 +419,7 @@ class WorkflowManager:
         self.workflow_history.append({
             "workflow_id": workflow_id,
             "company_name": company_info.name,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "status": "created"
         })
         
@@ -354,7 +440,7 @@ class WorkflowManager:
             for item in self.workflow_history:
                 if item["workflow_id"] == workflow_id:
                     item["status"] = "completed"
-                    item["completed_at"] = datetime.utcnow()
+                    item["completed_at"] = datetime.now(timezone.utc)
                     break
             
             return result
@@ -365,7 +451,7 @@ class WorkflowManager:
                 if item["workflow_id"] == workflow_id:
                     item["status"] = "failed"
                     item["error"] = str(e)
-                    item["failed_at"] = datetime.utcnow()
+                    item["failed_at"] = datetime.now(timezone.utc)
                     break
             raise
     
@@ -387,7 +473,7 @@ class WorkflowManager:
         for item in self.workflow_history:
             if item["workflow_id"] == workflow_id:
                 item["status"] = "cancelled"
-                item["cancelled_at"] = datetime.utcnow()
+                item["cancelled_at"] = datetime.now(timezone.utc)
                 break
     
     def cleanup_completed_workflows(self):

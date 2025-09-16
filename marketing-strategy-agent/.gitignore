@@ -289,3 +289,39 @@ _build/
 *.zip
 *.rar
 *.7z
+
+# Marketing Strategy Agent specific files
+data/generated_visuals/
+data/reports/
+backend/logs/
+frontend/logs/
+
+# Generated marketing reports and documents
+marketing_report_*.json
+marketing_report_*.pdf
+comprehensive_marketing_report_*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Test and debug files
+test_*.py
+debug_*.py
+*_test.py
+*_debug.py
+
+# Launch and run scripts (user specific)
+launch_*.py
+run_*.py
+start_*.py
+simple_*.py
+
+# Workflow checkpoints and state
+workflow_state_*.json
+agent_checkpoint_*.json
+progress_*.json
+
+# Company data backups
+companies_backup_*.json

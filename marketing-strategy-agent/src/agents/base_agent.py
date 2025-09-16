@@ -54,17 +54,26 @@ class BaseAgent(ABC):
         self.execution_start_time = time.time()
         
         try:
-            # Execute the agent's main logic
-            result = await self.execute(company_info, **kwargs)
+            # Execute the agent's main logic with timeout
+            result = await asyncio.wait_for(
+                self.execute(company_info, **kwargs), 
+                timeout=300  # 5 minute timeout
+            )
             
             self.execution_end_time = time.time()
             execution_time = self.execution_end_time - self.execution_start_time
             
+            # If execute returns AgentResponse, update it with timing
+            if isinstance(result, AgentResponse):
+                result.execution_time = execution_time
+                return result
+            
+            # Otherwise, wrap the result
             return AgentResponse(
                 agent_name=self.name,
                 execution_time=execution_time,
                 success=True,
-                result=result.result if hasattr(result, 'result') else result.dict(),
+                result=result.dict() if hasattr(result, 'dict') else result,
                 metadata={
                     "started_at": datetime.fromtimestamp(self.execution_start_time),
                     "completed_at": datetime.fromtimestamp(self.execution_end_time),
@@ -72,6 +81,22 @@ class BaseAgent(ABC):
                 }
             )
             
+        except asyncio.TimeoutError:
+            self.execution_end_time = time.time()
+            execution_time = self.execution_end_time - self.execution_start_time
+            
+            return AgentResponse(
+                agent_name=self.name,
+                execution_time=execution_time,
+                success=False,
+                error_message=f"Agent execution timed out after 300 seconds",
+                metadata={
+                    "started_at": datetime.fromtimestamp(self.execution_start_time),
+                    "failed_at": datetime.fromtimestamp(self.execution_end_time),
+                    "config_used": self.config,
+                    "error_type": "TimeoutError"
+                }
+            )
         except Exception as e:
             self.execution_end_time = time.time()
             execution_time = self.execution_end_time - self.execution_start_time

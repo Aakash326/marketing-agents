@@ -162,14 +162,45 @@
                         </div>
                     </div>
 
-                    <!-- Start Workflow Button -->
-                    <button 
-                        @click="startWorkflow()"
-                        :disabled="!selectedCompany || isWorkflowRunning"
-                        class="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
-                        <i :class="isWorkflowRunning ? 'fas fa-spinner fa-spin' : 'fas fa-play'" class="mr-2"></i>
-                        <span x-text="isWorkflowRunning ? 'Creating Workflow...' : 'Start Marketing Analysis'"></span>
-                    </button>
+                    <!-- Start Workflow Buttons -->
+                    <div class="mt-6 space-y-3">
+                        <!-- Standard Workflow Button -->
+                        <button 
+                            @click="startWorkflow()"
+                            :disabled="!selectedCompany || isWorkflowRunning"
+                            class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                            <i :class="isWorkflowRunning ? 'fas fa-spinner fa-spin' : 'fas fa-play'" class="mr-2"></i>
+                            <span x-text="isWorkflowRunning ? 'Creating Workflow...' : 'Start Marketing Analysis'"></span>
+                        </button>
+                        
+                        <!-- Complete Analysis Button -->
+                        <button 
+                            @click="startCompleteWorkflow()"
+                            :disabled="!selectedCompany || isWorkflowRunning"
+                            class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium relative">
+                            <i :class="isWorkflowRunning ? 'fas fa-spinner fa-spin' : 'fas fa-rocket'" class="mr-2"></i>
+                            <span x-text="isWorkflowRunning ? 'Creating Complete Analysis...' : 'Complete Analysis + PDF'"></span>
+                            <div class="absolute -top-2 -right-2">
+                                <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+                            </div>
+                        </button>
+                        
+                        <!-- Feature Comparison -->
+                        <div class="text-xs text-gray-500 space-y-1 mt-2">
+                            <div class="flex items-center justify-between">
+                                <span>• Standard: Individual agents</span>
+                                <span>• Complete: All 6 agents + PDF</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>• Time: 2-5 minutes</span>
+                                <span>• Time: 5-15 minutes</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>• Output: JSON data</span>
+                                <span>• Output: PDF + Text reports</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -472,7 +503,14 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                company_info: this.selectedCompany,
+                                company_info: {
+                                    name: this.selectedCompany.name,
+                                    industry: this.selectedCompany.industry,
+                                    size: this.selectedCompany.size,
+                                    location: this.selectedCompany.location || 'Global',
+                                    description: this.selectedCompany.description,
+                                    website: this.selectedCompany.website || ''
+                                },
                                 execution_mode: 'hybrid'
                             })
                         });
@@ -497,6 +535,58 @@
                     } catch (error) {
                         console.error('Failed to start workflow:', error);
                         alert('Failed to start workflow');
+                    } finally {
+                        this.isWorkflowRunning = false;
+                    }
+                },
+
+                async startCompleteWorkflow() {
+                    if (!this.selectedCompany || this.isWorkflowRunning) return;
+                    
+                    this.isWorkflowRunning = true;
+                    
+                    try {
+                        const response = await fetch('/api/workflows/complete', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                company_info: {
+                                    name: this.selectedCompany.name,
+                                    industry: this.selectedCompany.industry,
+                                    size: this.selectedCompany.size,
+                                    location: this.selectedCompany.location || 'Global',
+                                    description: this.selectedCompany.description,
+                                    website: this.selectedCompany.website || ''
+                                },
+                                execution_mode: 'complete'
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.currentWorkflow = {
+                                workflow_id: data.workflow_id,
+                                status: 'running',
+                                company: this.selectedCompany.name,
+                                progress_percentage: 0,
+                                current_activity: 'Starting complete analysis with all agents...',
+                                type: 'complete',
+                                agents: data.agents,
+                                estimated_time: data.estimated_time
+                            };
+                            
+                            // Connect to websocket for this workflow
+                            this.connectWorkflowWebSocket(data.workflow_id);
+                            
+                        } else {
+                            const error = await response.json();
+                            alert('Failed to start complete workflow: ' + error.detail);
+                        }
+                    } catch (error) {
+                        console.error('Failed to start complete workflow:', error);
+                        alert('Failed to start complete workflow');
                     } finally {
                         this.isWorkflowRunning = false;
                     }

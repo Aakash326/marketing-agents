@@ -236,7 +236,9 @@ class CompanyDatabase:
                 "industry": company.industry.value,
                 "size": company.size.value,
                 "description": company.description[:150] + "..." if len(company.description) > 150 else company.description,
-                "target_audience": company.target_audience[:3] if company.target_audience else []
+                "target_audience": company.target_audience[:3] if company.target_audience else [],
+                "location": getattr(company, 'location', 'Global'),
+                "website": getattr(company, 'website', '')
             })
             
             if len(results) >= limit:

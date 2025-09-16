@@ -3,6 +3,7 @@
     "name": "Apple Inc.",
     "industry": "technology",
     "size": "enterprise",
+    "location": "Global",
     "description": "Technology company that designs, develops, and sells consumer electronics, computer software, and online services.",
     "mission": "To bring the best personal computing experience to students, educators, creative professionals and consumers around the world through its innovative hardware, software and Internet offerings.",
     "values": [
@@ -41,6 +42,7 @@
     "name": "Tesla, Inc.",
     "industry": "automotive",
     "size": "large",
+    "location": "Global",
     "description": "Electric vehicle and clean energy company that designs, manufactures, and sells electric cars, energy generation and storage systems.",
     "mission": "To accelerate the world's transition to sustainable transport and energy.",
     "values": [
@@ -79,6 +81,7 @@
     "name": "Shopify Inc.",
     "industry": "technology",
     "size": "large",
+    "location": "Global",
     "description": "E-commerce platform that provides a suite of services including payments, marketing, shipping and customer engagement tools.",
     "mission": "To make commerce better for everyone by democratizing commerce for small businesses.",
     "values": [
@@ -117,6 +120,7 @@
     "name": "Airbnb, Inc.",
     "industry": "travel",
     "size": "large",
+    "location": "Global",
     "description": "Online marketplace for short-term homestays and experiences in various countries and regions.",
     "mission": "To create a world where anyone can belong anywhere.",
     "values": [
@@ -152,6 +156,7 @@
     "name": "Zoom Video Communications",
     "industry": "technology",
     "size": "large",
+    "location": "Global",
     "description": "Video conferencing and communications platform providing cloud-based peer-to-peer software platform.",
     "mission": "To make video communications frictionless and secure.",
     "values": [
@@ -191,6 +196,7 @@
     "name": "Peloton Interactive",
     "industry": "entertainment",
     "size": "medium",
+    "location": "Global",
     "description": "Interactive fitness platform that provides connected fitness equipment and virtual fitness classes.",
     "mission": "To empower people to be the best version of themselves anywhere, anytime.",
     "values": [
@@ -228,6 +234,7 @@
     "name": "Stripe, Inc.",
     "industry": "finance",
     "size": "large",
+    "location": "Global",
     "description": "Financial services and software as a service company that provides payment processing software and APIs for e-commerce websites and mobile applications.",
     "mission": "To increase the GDP of the internet.",
     "values": [
@@ -262,5 +269,19 @@
       "Europe",
       "Asia Pacific"
     ]
+  },
+  "integration_test_co": {
+    "name": "Integration Test Co.",
+    "industry": "technology",
+    "size": "medium",
+    "location": "Test City",
+    "description": "A test company for integration testing purposes",
+    "mission": null,
+    "values": [],
+    "website": "https://test.com",
+    "target_audience": [],
+    "competitors": [],
+    "unique_selling_points": [],
+    "geographic_markets": []
   }
 }

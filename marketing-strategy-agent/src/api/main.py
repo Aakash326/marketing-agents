@@ -21,7 +21,8 @@ from ..models.data_models import (
     WorkflowStatus,
     WorkflowProgress
 )
-from ..workflows.enhanced_marketing_workflow import WorkflowManager
+from workflows.enhanced_marketing_workflow import WorkflowManager
+from workflows.quick_marketing_workflow import QuickMarketingWorkflow
 from ..database.company_database import CompanyDatabase, CompanySelector
 from ..reports.report_generator import ReportGenerator
 from ..config.settings import load_config
@@ -54,7 +55,7 @@ templates = Jinja2Templates(directory="src/templates")
 class CompanyRequest(BaseModel):
     name: str
     industry: str
-    size: Optional[str] = "Medium"
+    size: Optional[str] = "medium"
     location: Optional[str] = "Global"
     description: Optional[str] = ""
     website: Optional[str] = ""
@@ -101,7 +102,7 @@ async def dashboard(request: Request):
 async def get_companies():
     """Get all available companies"""
     try:
-        companies = company_database.get_all_companies()
+        companies = company_database.list_companies()
         return {"companies": companies}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -434,6 +435,239 @@ async def delete_report(file_name: str):
     except Exception as e:
         logger.error(f"Error deleting report: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/workflows/complete")
+async def create_complete_workflow(workflow_request: WorkflowRequest, background_tasks: BackgroundTasks):
+    """Create and execute complete marketing analysis workflow with all agents and PDF generation"""
+    try:
+        # Import complete analyzer
+        from marketing_analyzer import CompleteMarketingAnalyzer
+        
+        # Convert request to CompanyInfo
+        company_info = CompanyInfo(
+            name=workflow_request.company_info.name,
+            industry=workflow_request.company_info.industry,
+            size=workflow_request.company_info.size,
+            location=workflow_request.company_info.location or "Global",
+            description=workflow_request.company_info.description or f"A {workflow_request.company_info.industry} company",
+            website=workflow_request.company_info.website or ""
+        )
+        
+        # Create unique workflow ID
+        workflow_id = f"complete_{company_info.name.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Execute complete analysis in background
+        background_tasks.add_task(
+            execute_complete_analysis_background,
+            workflow_id,
+            company_info
+        )
+        
+        return {
+            "workflow_id": workflow_id,
+            "status": "created",
+            "message": "Complete marketing analysis started with all agents + PDF generation",
+            "estimated_time": "5-15 minutes",
+            "agents": ["BrandAnalyzer", "TrendResearcher", "ContentCreator", "MarketingAgent", "GeminiVisualGenerator", "PDFGeneratorAgent"]
+        }
+        
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating complete workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def execute_complete_analysis_background(workflow_id: str, company_info: CompanyInfo):
+    """Execute complete marketing analysis in background"""
+    try:
+        # Broadcast start
+        await broadcast_workflow_update(workflow_id, {
+            "status": "running",
+            "message": "Starting comprehensive marketing analysis",
+            "progress": {"progress_percentage": 0, "current_agent": "Initializing"}
+        })
+        
+        # Import and initialize complete analyzer  
+        from marketing_analyzer import CompleteMarketingAnalyzer
+        analyzer = CompleteMarketingAnalyzer()
+        
+        # Run all agents
+        agent_results = await analyzer.run_all_agents(company_info)
+        
+        # Broadcast progress
+        await broadcast_workflow_update(workflow_id, {
+            "status": "running", 
+            "message": "Generating PDF and text reports",
+            "progress": {"progress_percentage": 90, "current_agent": "PDFGeneratorAgent"}
+        })
+        
+        # Generate reports
+        report_info = await analyzer.generate_reports(company_info, agent_results)
+        
+        # Store results
+        successful_agents = sum(1 for result in agent_results.values() if result["success"])
+        total_agents = len(agent_results)
+        
+        # Broadcast completion
+        await broadcast_workflow_update(workflow_id, {
+            "status": "completed",
+            "message": "Complete marketing analysis finished successfully",
+            "progress": {"progress_percentage": 100, "current_agent": "Complete"},
+            "result_summary": {
+                "company": company_info.name,
+                "agents_executed": total_agents,
+                "successful_agents": successful_agents,
+                "success_rate": f"{(successful_agents/total_agents*100):.0f}%",
+                "pdf_report": report_info.get("pdf_report_path") if report_info else None,
+                "text_report": report_info.get("text_report_path") if report_info else None
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Complete workflow {workflow_id} failed: {e}")
+        await broadcast_workflow_update(workflow_id, {
+            "status": "failed",
+            "message": f"Complete analysis failed: {str(e)}",
+            "error": str(e)
+        })
+
+
+@app.post("/api/workflows/quick")
+async def create_quick_workflow(workflow_request: WorkflowRequest, background_tasks: BackgroundTasks):
+    """Create and execute quick marketing analysis workflow (2-4 minutes)"""
+    try:
+        # Convert request to CompanyInfo
+        company_info = CompanyInfo(
+            name=workflow_request.company_info.name,
+            industry=workflow_request.company_info.industry,
+            size=workflow_request.company_info.size,
+            location=workflow_request.company_info.location or "Global",
+            description=workflow_request.company_info.description or f"A {workflow_request.company_info.industry} company",
+            website=workflow_request.company_info.website or ""
+        )
+        
+        # Create unique workflow ID
+        workflow_id = f"quick_{company_info.name.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Execute quick analysis in background
+        background_tasks.add_task(
+            execute_quick_analysis_background,
+            workflow_id,
+            company_info
+        )
+        
+        return {
+            "analysis_id": workflow_id,
+            "workflow_id": workflow_id,
+            "status": "created",
+            "message": "Quick marketing analysis started - core insights only",
+            "estimated_time": "2-4 minutes",
+            "agents": ["BrandAnalyzer", "ContentCreator", "MarketingAgent"],
+            "features": ["Core brand analysis", "Essential content strategy", "Key marketing recommendations"]
+        }
+        
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating quick workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/workflows/complete")
+async def create_complete_workflow(workflow_request: WorkflowRequest, background_tasks: BackgroundTasks):
+    """Create and execute complete marketing analysis workflow (5-15 minutes)"""
+    try:
+        # Convert request to CompanyInfo
+        company_info = CompanyInfo(
+            name=workflow_request.company_info.name,
+            industry=workflow_request.company_info.industry,
+            size=workflow_request.company_info.size,
+            location=workflow_request.company_info.location or "Global",
+            description=workflow_request.company_info.description or f"A {workflow_request.company_info.industry} company",
+            website=workflow_request.company_info.website or ""
+        )
+        
+        # Create unique workflow ID  
+        workflow_id = f"complete_{company_info.name.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Execute complete analysis in background
+        background_tasks.add_task(
+            execute_complete_analysis_background,
+            workflow_id,
+            company_info
+        )
+        
+        return {
+            "analysis_id": workflow_id,
+            "workflow_id": workflow_id,
+            "status": "created",
+            "message": "Complete marketing analysis started - comprehensive insights",
+            "estimated_time": "5-15 minutes",
+            "agents": ["BrandAnalyzer", "TrendResearcher", "ContentCreator", "MarketingAgent", "GeminiVisualGenerator"],
+            "features": ["Complete brand analysis", "Trend research", "Comprehensive content strategy", "Visual content generation", "Complete marketing strategy"]
+        }
+        
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating complete workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def execute_quick_analysis_background(workflow_id: str, company_info: CompanyInfo):
+    """Execute quick marketing analysis in background"""
+    try:
+        # Broadcast start
+        await broadcast_workflow_update(workflow_id, {
+            "status": "running",
+            "message": "Starting quick marketing analysis",
+            "progress": {"progress_percentage": 0, "current_agent": "Initializing"}
+        })
+        
+        # Initialize quick workflow
+        quick_workflow = QuickMarketingWorkflow(config)
+        
+        # Add progress callback for websocket updates
+        quick_workflow.add_progress_callback(
+            lambda progress: broadcast_workflow_update(workflow_id, {
+                "status": "running",
+                "message": progress.current_activity,
+                "progress": {
+                    "progress_percentage": progress.progress_percentage,
+                    "current_agent": progress.stage
+                }
+            })
+        )
+        
+        # Run quick analysis
+        result = await quick_workflow.execute(company_info)
+        
+        # Store results for quick access
+        completed_workflows[workflow_id] = result
+        
+        # Broadcast completion
+        await broadcast_workflow_update(workflow_id, {
+            "status": "completed",
+            "message": "Quick marketing analysis completed successfully",
+            "progress": {"progress_percentage": 100, "current_agent": "Complete"},
+            "result_summary": {
+                "company": company_info.name,
+                "workflow_type": "quick_analysis",
+                "agents_executed": len(result.workflow_metadata.get("agents_executed", [])),
+                "execution_time": f"{result.workflow_metadata.get('execution_time_seconds', 0):.1f}s",
+                "success_rate": result.workflow_metadata.get("success_rate", "100%")
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Quick workflow {workflow_id} failed: {e}")
+        await broadcast_workflow_update(workflow_id, {
+            "status": "failed",
+            "message": f"Quick analysis failed: {str(e)}",
+            "error": str(e)
+        })
 
 
 @app.get("/api/workflows/{workflow_id}/report")
