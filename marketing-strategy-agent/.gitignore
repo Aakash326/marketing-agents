@@ -300,6 +300,9 @@ frontend/logs/
 marketing_report_*.json
 marketing_report_*.pdf
 comprehensive_marketing_report_*.pdf
+marketing_strategy_*.pdf
+marketing_analysis_*.pdf
+brand_analysis_*.pdf
 *.png
 *.jpg
 *.jpeg
@@ -311,6 +314,8 @@ test_*.py
 debug_*.py
 *_test.py
 *_debug.py
+debug_*.html
+*_debug.html
 
 # Launch and run scripts (user specific)
 launch_*.py

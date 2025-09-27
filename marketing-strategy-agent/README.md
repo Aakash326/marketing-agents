@@ -10,7 +10,6 @@ A comprehensive AI-powered marketing workflow automation system that leverages m
 - **ContentCreator**: Content strategy and social media planning
 - **MarketingAgent**: Comprehensive marketing strategy synthesis
 - **GeminiVisualGenerator**: AI-powered visual content generation
-
 ### Interactive Dashboard
 - Modern web interface with real-time progress tracking
 - Company selection and management
